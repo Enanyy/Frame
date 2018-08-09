@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{56DDFAA5-EDAF-4882-997E-06783D471BC6}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FrameServer</RootNamespace>
+    <AssemblyName>FrameServer</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Net\NetworkService.cs" />
+    <Compile Include="Server\Debug.cs" />
+    <Compile Include="Net\MessageInfo.cs" />
+    <Compile Include="Net\ProtoTransfer.cs" />
+    <Compile Include="Net\TcpService.cs" />
+    <Compile Include="Net\UdpService.cs" />
+    <Compile Include="Protobuf\PBMessage.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\BclHelpers.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\BufferExtension.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\BufferPool.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\CallbackAttributes.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\DataFormat.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Extensible.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ExtensibleUtil.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\GlobalSuppressions.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Helpers.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\IExtensible.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\IExtension.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ImplicitFields.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\KeyValuePairProxy.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\NetObjectCache.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\PrefixStyle.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Compiler\CompilerContext.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Compiler\CompilerDelegates.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Compiler\Local.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\AttributeMap.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\BasicList.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\CallbackSet.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\MetaType.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\RuntimeTypeModel.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\SubType.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\TypeFormatEventArgs.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\TypeModel.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Meta\ValueMember.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Properties\AssemblyInfo.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\ArrayDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\BlobSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\BooleanSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\ByteSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\CharSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\CompiledSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\DateTimeSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\DecimalSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\DefaultValueDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\DoubleSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\EnumSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\FieldDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\GuidSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\ImmutableCollectionDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\Int16Serializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\Int32Serializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\Int64Serializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\IProtoSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\IProtoTypeSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\ISerializerProxy.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\KeyValuePairDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\ListDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\MemberSpecifiedDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\NetObjectSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\NullDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\ParseableSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\PropertyDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\ProtoDecoratorBase.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\SByteSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\SingleSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\StringSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\SubItemSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\SurrogateSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\SystemTypeSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\TagDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\TimeSpanSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\TupleSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\TypeSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\UInt16Serializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\UInt32Serializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\UInt64Serializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializers\UriDecorator.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ServiceModel\ProtoBehaviorAttribute.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ServiceModel\ProtoBehaviorExtensionElement.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ServiceModel\ProtoEndpointBehavior.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ServiceModel\ProtoOperationBehavior.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ServiceModel\XmlProtoSerializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoContractAttribute.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoConverterAttribute.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoEnumAttribute.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoException.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoIgnoreAttribute.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoIncludeAttribute.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoMemberAttribute.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoReader.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\ProtoWriter.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\SerializationContext.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\Serializer.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\SubItemToken.cs" />
+    <Compile Include="Protobuf\ProtoBuf-Net\WireType.cs" />
+    <Compile Include="Server\Command.cs" />
+    <Compile Include="Server\GUID.cs" />
+    <Compile Include="Net\Session.cs" />
+    <Compile Include="Net\MessageBuffer.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server\Monster.cs" />
+    <Compile Include="Server\PlayerInfo.cs" />
+    <Compile Include="Server\Point3D.cs" />
+    <Compile Include="Server\Singleton.cs" />
+    <Compile Include="Server\User.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Protobuf\ProtoBuf-Net\Web\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

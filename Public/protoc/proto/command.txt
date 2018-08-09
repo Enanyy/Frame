@@ -1,0 +1,38 @@
+package PBMessage;
+
+import "scene.txt";
+
+
+//服务器也可以发送命令
+//roleId ==0时说明该命令是服务器发的
+enum CommandID
+{
+	RELEASE_SKILL = 1;
+	MOVE_TO_POINT = 2;
+	CREATE_MONSTER = 3;
+}
+	
+message CMD_ReleaseSkill
+{
+	required int32 roleId= 1;
+	required int32 skillId = 2;
+	required GMPoint3D mouseposition = 3;
+}
+
+	
+	
+message CMD_MoveToPoint
+{
+	required int32 roleId = 1;
+	required GMPoint3D position = 2;
+	required GMPoint3D direction = 3;
+	required GMPoint3D destination = 4;
+}
+
+message CMD_CreateMonster
+{
+	required int32 roleId = 1;
+	required GMPlayerInfo player = 2;
+	required GMPoint3D position = 3;
+	required GMPoint3D direction = 4;
+}

@@ -1,0 +1,113 @@
+
+message GM_AccountLog
+{
+	required int32 platformID = 1;    	//平台ID
+	required string ditchID = 2;    		//渠道ID
+	required string version = 3;    		//版本ID
+
+	required int32 accountID = 4;    	//帐号ID
+	required string macAddress = 5;   	//下载设备MAC地址
+	required string deviceUUID = 6;  	//下载设备UUID
+	optional string idfa = 7;
+	optional string deviceType = 8;
+	optional string networkType=9; //网络类型
+}  
+
+message GM_AccountRequest
+{
+   required string m_AccountName = 1;			///账号名字,如果为平台账号，该字段是平台的guid
+   required string m_Password = 2;				///密码，如果为平台账号，该字段是平台标识
+   optional int32 platform=3;					///是否平台发过来的账号验证
+   required GM_AccountLog accountLogInfo = 4;	///日志服务器记录玩家登陆信息; 
+}
+
+message GM_AccountReturn
+{
+   required int32 m_Result = 1;           	///0、成功，1、账号密码错误，2、验证错误，3、此账号已暂时冻结 4、账号长度不符合 5、密码长度不符合 	6、此账号已永久冻结
+   required int32 m_AccountID = 2;       	///帐号id
+   required string m_RandStr = 3;         	///随机产生的字符串，用于客户端与服务器的通信
+   optional int32 m_lastloginServerID = 4;	///最后登陆服务器ID
+   optional int32 m_lastloginServerID2 = 5;	///最后登陆服务器ID2
+   optional int32 m_lastloginServerState = 6;
+}
+
+
+
+message GM_AccountCreate
+{
+   required string m_AccountName = 1;///账号名字
+   required string m_Password = 2;///密码
+	required GM_AccountLog accountLogInfo = 3;		///日志服务器记录玩家创建信息;
+	optional string m_activatekey=4;			///激活码
+}
+   
+
+
+message GM_AccountCreateReturn
+{
+   required int32 m_Result= 1; ///0,创建成功，1，存在账号 2,账号长度不符合3,密码长度不符合 4,是关键字
+   required int32 m_AccountID = 2;///帐号id
+   required string m_AccountName = 3;///账号名字
+   required string m_Password = 4;///密码
+
+}
+
+
+message GM_AccountExistRequest
+{
+   required string m_AccountName = 1;///账号名字 
+}
+
+
+
+message GM_VerifyVersion
+{
+	required string version=1;				//客户端版本号
+}
+
+
+message GM_VerifyVersionReturn
+{
+	required int32 result=1;								//验证结果 0=通过
+	required string serverversion=2;				//服务器版本号
+	optional int32 serverFlag = 3;					//服务器标签;
+}
+message GM_TestAccountReturn
+{
+    required string accountName=1;///账号名
+    required  string password=2;///密码
+}
+
+message GM_BindTestAccountRequest
+{
+   required string  testAccountName=1;///试玩账号
+   required string  testPassword=2;   ///试玩密码
+   required string  newAccountName=3; ///新账号
+   required string  newPassword=4;    ///新密码
+   required string  platform=5;///平台
+}
+
+message GM_BindTestAccountReturn
+{
+   required  int32 result=1;///0绑定成功,1试玩账号有误,2新账号有误
+}
+
+message SP_BindTestAccountRequest
+{
+  required GM_BindTestAccountRequest bindTestAccountRequest=1;
+  required string                    clientIP=2;///客户端ip
+}
+
+message GM_TestAccountRequest
+{
+   required string  idfa=1;///客户端的mac地址或者idfa
+}
+
+message GM_RecordAccountInfo
+{
+    required string  username=1;///用户名
+	required string  userpassword=2;///用户密码
+	required string  userkey=3;///userid
+	required int32   platform=4;///平台
+	required string  channel=5;///渠道
+}

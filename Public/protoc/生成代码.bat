@@ -1,0 +1,5 @@
+autoBuild.exe
+
+
+pause;
+ 

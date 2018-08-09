@@ -1,0 +1,92 @@
+package PBMessage;
+
+message GMPoint2D
+{
+	required int32 x = 1;
+	required int32 y = 2;
+}
+
+message GMPoint3D
+{
+	required int32 x = 1;
+	required int32 y = 2;
+	required int32 z = 3;
+}
+
+
+message GMPlayerInfo
+{
+	required int32 roleId = 1;
+	required string name = 2;
+	required int32 moveSpeed = 3;		  //基础速度
+	required int32 moveSpeedAddition = 4; //固定加成
+	required int32 moveSpeedPercent = 5;  //百分比加成
+	required int32 attackSpeed = 6;		  	//基础攻速
+	required int32 attackSpeedAddition = 7;	//固定加成
+	required int32 attackSpeedPercent = 8; //百分比
+	required int32 maxBlood = 9;
+	required int32 nowBlood = 10;
+	required int32 type = 11; 				//0人物 1怪物
+}
+
+message GM_Request
+{
+	required int32 id = 1;
+}
+
+message GM_Return
+{
+	required int32 id = 1;
+}
+
+message GM_Connect
+{
+	required int32 roleId = 1;
+	required GMPlayerInfo player = 2;
+	required int32 frameinterval = 3; //帧时间 毫秒
+}
+
+message GM_Disconnect
+{
+	required int32 roleId = 1;
+}
+
+message GM_Ready
+{
+	required int32 roleId  = 1;
+	required GMPoint3D position = 2;
+	required GMPoint3D direction = 3;
+}
+
+message GMCommand
+{
+	required int64 id = 1;
+	required int32 type = 2;
+	required bytes data = 3; //帧数据
+	required int64 frame = 4; //所在帧
+	required int64 frametime = 5; //所在帧的时间
+}
+
+message GM_Frame
+{
+	required int32 roleId =1;
+	required int64 frame = 2;//客户端当前帧
+	repeated GMCommand command = 4;
+}
+
+message GM_Frame_BC
+{
+	required int64 frame = 1; //服务器当前帧
+	repeated GMCommand command = 2;
+}
+
+
+message GM_Begin
+{
+	required int32 result = 1;
+}
+
+
+
+
+

@@ -1,0 +1,20 @@
+package PBMessage;
+
+enum MessageID
+{
+		MinValue = 0;
+
+        GM_CONNECT_SC = 100;
+        GM_CONNECT_BC = 101;
+		GM_DISCONNECT_BC = 102;
+
+        GM_READY_CS = 103;
+        GM_READY_BC = 104;
+        GM_BEGIN_BC = 105;
+
+
+        GM_FRAME_CS = 106;
+        GM_FRAME_BC = 107;
+
+        MaxValue = 1000;
+}
