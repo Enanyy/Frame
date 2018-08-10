@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Net\kcp\kcp.cs" />
     <Compile Include="Net\NetworkService.cs" />
     <Compile Include="Server\Debug.cs" />
     <Compile Include="Net\MessageInfo.cs" />

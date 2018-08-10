@@ -67,11 +67,11 @@ namespace Network
             mUdp = new UdpService(this, udp);
         }
 
-        public bool IsRunning
+        public bool IsActive
         {
             get
             {
-                return mTcp.IsRunning && mUdp.IsRunning;
+                return mTcp.IsActive && mUdp.IsActive;
             }
         }
 
@@ -80,8 +80,8 @@ namespace Network
         {
             try
             {
-                mTcp.Start();
-                mUdp.Start();
+                mTcp.Listen();
+                mUdp.Listen();
 
                 mTcp.onReceive += OnReceive;
                 mUdp.onReceive += OnReceive;

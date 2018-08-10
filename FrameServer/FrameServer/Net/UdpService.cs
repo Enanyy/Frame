@@ -7,40 +7,41 @@ using System.Threading;
 
 namespace Network
 {
-    public class UdpService
+    public class UdpService : UdpClient
     {
         private NetworkService mService;
-        private UdpClient mUDPSocket;
-        private int mUDPPort;
+
+        private int mPort;
         private Queue<MessageInfo> mSendMessageQueue = new Queue<MessageInfo>();
 
         private Thread mReceiveThread, mSendThread;
 
-        private bool mRunning = false;
-        public bool IsRunning { get { return mRunning; } }
+        private bool mListening = false;
+
+        public bool IsActive { get { return Client.IsBound && mListening; } }
 
         public event OnReceiveHandler onReceive;
         public event OnUdpConnectHandler onConnect;
 
 
-        public UdpService(NetworkService service, int port)
+        public UdpService(NetworkService service, int port) : base(port)
         {
             mService = service;
-            mUDPPort = port;
-            mUDPSocket = new UdpClient(mUDPPort);
+            mPort = port;
         }
 
-        public bool Start()
+        public bool Listen()
         {
-            if (mRunning)
+            if (mListening)
             {
                 return true;
             }
 
+            mListening = true;
+
             mReceiveThread = new Thread(ReceiveThread);
             mSendThread = new Thread(SendThread);
 
-            mRunning = true;
 
             mReceiveThread.Start();
             mSendThread.Start();
@@ -61,15 +62,9 @@ namespace Network
             }
         }
 
-        public void Close()
+        public new void Close()
         {
-            if (mUDPSocket != null)
-            {
-                mUDPSocket.Close();
-                mUDPSocket = null;
-            }
-
-            mRunning = false;
+            base.Close();
 
             if (mSendThread != null)
             {
@@ -86,13 +81,12 @@ namespace Network
 
         void ReceiveThread()
         {
-            while (true)
+            while (IsActive)
             {
                 try
                 {
-
                     IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
-                    byte[] data = mUDPSocket.Receive(ref ip);
+                    byte[] data = Receive(ref ip);
 
                     if (data.Length > 0)
                     {
@@ -109,7 +103,7 @@ namespace Network
                             }
                             else
                             {
-                                mUDPSocket.Send(data, 1, ip);
+                                Send(data, 1, ip);
                             }
                         }
 
@@ -159,11 +153,12 @@ namespace Network
             }
         }
 
+
+
         void SendThread()
         {
-            while (mRunning)
+            while (IsActive)
             {
-
                 lock (mSendMessageQueue)
                 {
                     while (mSendMessageQueue.Count > 0)
@@ -174,7 +169,7 @@ namespace Network
 
                         try
                         {
-                            mUDPSocket.Send(message.buffer.buffer, message.buffer.size, message.session.udpAdress);
+                           Send(message.buffer.buffer, message.buffer.size, message.session.udpAdress);
                         }
                         catch (SocketException e)
                         {

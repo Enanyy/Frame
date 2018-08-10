@@ -7,46 +7,41 @@ using System.Threading;
 
 namespace Network
 {
-    public class TcpService
+    public class TcpService : TcpListener
     {
         private NetworkService mService;
 
-        private TcpListener mTCPSocket;
-
-        private int mTCPPort;
-
+        private int mPort;
 
         Thread mAcceptThread, mReceiveThread, mSendThread;
 
         Queue<MessageInfo> mSendMessageQueue = new Queue<MessageInfo>();
 
-        private bool mRunning;
-        public bool IsRunning { get { return mRunning; } }
+
+        public bool IsActive { get { return Active; } }
 
 
         public event OnReceiveHandler onReceive;
         public event OnTcpConnectHandler onConnect;
 
-        public TcpService(NetworkService service, int port)
+        public TcpService(NetworkService service, int port) : base(IPAddress.Any, port)
         {
             mService = service;
-            mTCPPort = port;
-            mTCPSocket = new TcpListener(IPAddress.Any, mTCPPort);
+            mPort = port;
         }
 
-        public bool Start()
+        public bool Listen()
         {
-            if (mRunning)
+            if (IsActive)
             {
                 return true;
             }
 
+            Start();
+
             mAcceptThread = new Thread(AcceptThread);
             mReceiveThread = new Thread(ReceiveThread);
             mSendThread = new Thread(SendThread);
-
-            mRunning = true;
-
 
             mAcceptThread.Start();
             mReceiveThread.Start();
@@ -56,15 +51,9 @@ namespace Network
             return true;
         }
 
-        public void Close()
+        public void  Close()
         {
-            if (mTCPSocket != null)
-            {
-                mTCPSocket.Stop();
-                mTCPSocket = null;
-            }
-
-            mRunning = false;
+            Stop();
 
             if (mAcceptThread != null)
             {
@@ -98,13 +87,11 @@ namespace Network
 
         void AcceptThread()
         {
-            mTCPSocket.Start();
-
-            while (mRunning)
+            while (IsActive)
             {
                 try
                 {
-                    Socket s = mTCPSocket.AcceptSocket();
+                    Socket s = AcceptSocket();
                     if (s != null)
                     {
                         if (onConnect != null)
@@ -126,7 +113,7 @@ namespace Network
 
         void ReceiveThread()
         {
-            while (mRunning)
+            while (IsActive)
             {
                 var sessions = mService.sessions;//一个临时的队列
                 for (int i = 0; i < sessions.Count; ++i)
@@ -202,9 +189,8 @@ namespace Network
 
         void SendThread()
         {
-            while (mRunning)
+            while (IsActive)
             {
-
                 lock (mSendMessageQueue)
                 {
                     while (mSendMessageQueue.Count > 0)
