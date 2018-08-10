@@ -6,14 +6,14 @@ using System.Threading;
 
 namespace Network
 {
-    public class TcpService
+    public class TcpService : TcpClient
     {
         private Queue<MessageBuffer> mSendMessageQueue = new Queue<MessageBuffer>();
-        private IPEndPoint mTCPAdress;
-        private TcpClient mTCPSocket;
+        private IPEndPoint mServerAdress;
+        //private TcpClient mTCPSocket;
 
         private Client mService;
-        private int mTCPPort;
+        private int mPort;
 
         private int mSock;
 
@@ -25,22 +25,21 @@ namespace Network
         public event OnDisconnectHandler onDisconnect;
         public event OnExceptionHandler onException;
 
-        public TcpService(Client service)
+        public TcpService(Client service):base()
         {
             mService = service;
         }
 
-        public bool IsConnected { get { return mTCPSocket != null && mTCPSocket.Connected;  } }
+        public bool IsConnected { get { return Active && Connected; } }
 
-        public bool Connect(string ip, int port)
+        public new bool Connect(string ip, int port)
         {
-            if(IsConnected)
+            if (IsConnected)
             {
                 return true;
             }
-            mTCPSocket = new TcpClient();
 
-            mTCPAdress = new IPEndPoint(IPAddress.Parse(ip), port);
+            mServerAdress = new IPEndPoint(IPAddress.Parse(ip), port);
 
             Thread connect = new Thread(ConnectThread);
             connect.Start();
@@ -64,9 +63,9 @@ namespace Network
         {
             try
             {
-                mTCPSocket.Connect(mTCPAdress);
+                base.Connect(mServerAdress);
 
-                if(IsConnected == false)
+                if (IsConnected == false)
                 {
                     Close();
                     return;
@@ -75,7 +74,7 @@ namespace Network
                 while (true)
                 {
                     //Read accepted ID
-                    NetworkStream s = mTCPSocket.GetStream();
+                    NetworkStream s = GetStream();
 
                     if (s.CanRead)
                     {
@@ -104,7 +103,7 @@ namespace Network
                 {
                     onAcceptPoll(mSock);
                 }
-                else if(onConnect!=null)
+                else if (onConnect != null)
                 {
                     onConnect();
                 }
@@ -114,20 +113,16 @@ namespace Network
                 Close();
                 throw e;
             }
-           
+
         }
 
-        public void Close()
+        public new void Close()
         {
-            if (mTCPSocket != null )
+            if (IsConnected)
             {
-                if (IsConnected)
-                {
-                    mTCPSocket.GetStream().Close();
-                }
-                mTCPSocket.Close();
-                mTCPSocket = null;
+                GetStream().Close();
             }
+            base.Close();
 
             if (mReceiveThread != null)
             {
@@ -162,7 +157,7 @@ namespace Network
 
                             if (message == null) continue;
 
-                            mTCPSocket.GetStream().Write(message.buffer, 0, message.length);
+                            GetStream().Write(message.buffer, 0, message.length);
                         }
 
                         mSendMessageQueue.Clear();
@@ -198,7 +193,7 @@ namespace Network
                 try
                 {
                     byte[] headbuffer = new byte[MessageBuffer.MESSAGE_HEAD_SIZE];
-                    int receiveSize = mTCPSocket.Client.Receive(headbuffer, MessageBuffer.MESSAGE_HEAD_SIZE, SocketFlags.None);
+                    int receiveSize = Client.Receive(headbuffer, MessageBuffer.MESSAGE_HEAD_SIZE, SocketFlags.None);
                     if (receiveSize == 0)
                     {
                         return;
@@ -221,7 +216,7 @@ namespace Network
 
                     if (bodySize > 0)
                     {
-                        int receiveBodySize = mTCPSocket.Client.Receive(messageBuffer, MessageBuffer.MESSAGE_BODY_OFFSET, bodySize, SocketFlags.None);
+                        int receiveBodySize = Client.Receive(messageBuffer, MessageBuffer.MESSAGE_BODY_OFFSET, bodySize, SocketFlags.None);
 
                         if (receiveBodySize != bodySize)
                         {

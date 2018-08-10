@@ -6,19 +6,18 @@ using System.Threading;
 
 namespace Network
 {
-    public class UdpService
+    public class UdpService : UdpClient
     {
         private Client mService;
 
         private Queue<MessageBuffer> mSendMessageQueue = new Queue<MessageBuffer>();
 
-        private IPEndPoint  mUDPAdress;
-        private UdpClient   mUDPClient;
+        private IPEndPoint mServerAdress;
 
-        private Thread      mReceiveThread, mSendThread;
+        private Thread mReceiveThread, mSendThread;
 
 
-        public bool IsConnected { get { return mUDPClient!=null && mUDPClient.Client.Connected; } }
+        public bool IsConnected { get { return Client.Connected; } }
 
         public event OnConnectHandler onConnect;
         public event OnMessageHandler onMessage;
@@ -29,22 +28,22 @@ namespace Network
         public UdpService(Client service)
         {
             mService = service;
-                  
+
         }
 
-        public bool Connect(string ip, int port)
+        public new bool Connect(string ip, int port)
         {
-            if(IsConnected)
+            if (IsConnected)
             {
                 return true;
             }
 
-            mUDPAdress = new IPEndPoint(IPAddress.Parse(ip), port);
-            mUDPClient = new UdpClient();
+            mServerAdress = new IPEndPoint(IPAddress.Parse(ip), port);
 
-            mUDPClient.Connect(mUDPAdress);
 
-            if(IsConnected ==false)
+            Connect(mServerAdress);
+
+            if (IsConnected == false)
             {
                 Close();
                 return false;
@@ -75,19 +74,16 @@ namespace Network
             }
         }
 
-        public void Close()
+        public new void Close()
         {
-            if(mUDPClient!=null)
-            {
-                mUDPClient.Close();
-                mUDPClient = null;
-            }
-            if(mReceiveThread!=null)
+            base.Close();
+
+            if (mReceiveThread != null)
             {
                 mReceiveThread.Abort();
                 mReceiveThread = null;
             }
-            if(mSendThread!=null)
+            if (mSendThread != null)
             {
                 mSendThread.Abort();
                 mSendThread = null;
@@ -112,7 +108,7 @@ namespace Network
                             MessageBuffer message = mSendMessageQueue.Dequeue();
                             if (message == null) continue;
 
-                            int ret = mUDPClient.Send(message.buffer, message.length);
+                            int ret = Send(message.buffer, message.length);
                         }
                         mSendMessageQueue.Clear();
                     }
@@ -134,8 +130,8 @@ namespace Network
             {
                 try
                 {
-                    IPEndPoint ip = mUDPAdress;
-                    byte[] data = mUDPClient.Receive(ref ip);
+                    IPEndPoint ip = mServerAdress;
+                    byte[] data = Receive(ref ip);
 
                     if (data.Length > 0 && MessageBuffer.IsValid(data))
                     {
@@ -145,7 +141,7 @@ namespace Network
                         }
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Close();
                     throw e;
@@ -154,6 +150,5 @@ namespace Network
                 Thread.Sleep(10);
             }
         }
-
     }
 }
