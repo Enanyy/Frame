@@ -616,7 +616,7 @@ public class FrameScene : GameScene, IReceiverHandler
             data.player.moveSpeed = 350;
             data.player.maxBlood = 200;
             data.player.nowBlood = 200;
-            data.player.name = "monster " + data.player.roleId;
+            data.player.name = "client " + data.player.roleId;
             data.position = ProtoTransfer.Get(new Vector3((i+1) * (i %2 == 0? -3:3), 1, 10));
             data.direction = ProtoTransfer.Get(Vector3.zero);
 

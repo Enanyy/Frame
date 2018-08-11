@@ -155,6 +155,11 @@ public class PlayerCharacter:MonoBehaviour
         {
             c = Color.blue;
         }
+        else if(type == 2) //Boss
+        {
+            c = Color.red;
+        }
+
 
         Helper.SetMeshRendererColor(transform, c);
      

@@ -29,7 +29,7 @@ namespace FrameServer
         NetworkService mService;
 
         private int mRoleId = 100; //客户端的人物开始id
-        private int mMonsterId = 10000; //客户端怪物开始id
+        private int mMonsterId = 100000; //客户端怪物开始id
         private const int SERVER_ROLEID = 0; //服务器也参与整局游戏，负责发送一些全局命令，比如Buff、怪物生成
 
         List<User> mUserList = new List<User>();
@@ -266,44 +266,33 @@ namespace FrameServer
 
             mBegin = true; //游戏开始
 
-            //服务器添加一个命令
-            /*
-            Monster monster = new Monster(mMonsterId++);
-            mMonsterList.Add(monster);
+            //服务器添加命令
 
-            monster.position.x = 10 * 10000;
-            monster.position.y = 1 * 10000;
-            monster.position.z = 10 * 10000;
+            for (int i = 0; i < 3; ++i) {
 
-            CMD_CreateMonster data = new CMD_CreateMonster();
-            data.roleId = SERVER_ROLEID;
-            data.player = ProtoTransfer.Get(monster.mPlayerInfo);
-            data.position = ProtoTransfer.Get(monster.position);
-            data.direction = ProtoTransfer.Get(monster.direction);
-            
+                Monster monster = new Monster(mMonsterId++);
+                mMonsterList.Add(monster);
+
+                monster.mPlayerInfo.name = "Server " + monster.roleid;
+                monster.mPlayerInfo.type = 2;//Boss
+
+                monster.position.x = ((i + 1) * (i % 2 == 0 ? -3 : 3)) * 10000;
+                monster.position.y = 1 * 10000;
+                monster.position.z = -10 * 10000;
+
+                CMD_CreateMonster data = new CMD_CreateMonster();
+                data.roleId = SERVER_ROLEID;
+                data.player = ProtoTransfer.Get(monster.mPlayerInfo);
+                data.position = ProtoTransfer.Get(monster.position);
+                data.direction = ProtoTransfer.Get(monster.direction);
+
+                Command cmd = new Command();
+                cmd.Set(CommandID.CREATE_MONSTER, data);
+
+                AddCommand(cmd);
+            }
         
-
-            Command cmd = new Command();
-            cmd.Set(CommandID.CREATE_MONSTER, data);
-
-            AddCommand(cmd);
-
-            Monster monster1 = new Monster(mMonsterId++);
-            mMonsterList.Add(monster1);
-
-            monster1.position.x = -10 * 10000;
-            monster1.position.y = 1 * 10000;
-            monster1.position.z = -10 * 10000;
-
-
-            Command cmd1 = new Command();
-            data.player = ProtoTransfer.Get(monster1.mPlayerInfo);
-            data.position = ProtoTransfer.Get(monster1.position);
-            data.direction = ProtoTransfer.Get(monster1.direction);
-            cmd1.Set(CommandID.CREATE_MONSTER, data);
-
-            AddCommand(cmd1);
-            */
+            
         }
 
 
