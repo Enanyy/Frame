@@ -62,6 +62,11 @@ public class Dispatcher
             }
             return o.mReceiver == mReceiver;
         }
+
+        public bool Equals(Action<T> receiver)
+        {
+            return mReceiver == receiver;
+        }
     }
 
     private Dictionary<int, List<IReceiver>> mReceiverDic = new Dictionary<int, List<IReceiver>>();
@@ -103,13 +108,16 @@ public class Dispatcher
     {
         if (mReceiverDic.ContainsKey(id))
         {
-            Receiver<T> receiver = new Receiver<T>(action);
-
             for (int i = mReceiverDic[id].Count - 1; i >= 0; --i)
             {
-                if (mReceiverDic[id][i].Equals(receiver))
+                IReceiver receiver = mReceiverDic[id][i];
+                if (receiver!=null && receiver.IsType(typeof(T)))
                 {
-                    mReceiverDic[id].RemoveAt(i);
+                    Receiver<T> o = receiver as Receiver<T>;
+                    if (o !=null && o.Equals(action))
+                    {
+                        mReceiverDic[id].RemoveAt(i);
+                    }
                 }
             }
 

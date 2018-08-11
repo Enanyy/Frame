@@ -335,12 +335,10 @@ namespace FrameServer
             long frame = recvData.frame;
             int roleId = recvData.roleId;
 
-            //减少Log
             if (recvData.command.Count > 0 || frame % 30 == 0)
             {
                 Debug.Log(string.Format("Receive {0} serverframe:{1} clientframe:{2} command:{3}", roleId, mCurrentFrame, frame, recvData.command.Count), ConsoleColor.DarkGray);
             }
-
             if (mFrameDic.ContainsKey(frame) == false)
             {
                 mFrameDic.Add(frame, new Dictionary<int, List<Command>>());
