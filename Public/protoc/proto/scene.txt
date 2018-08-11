@@ -44,6 +44,7 @@ message GM_Connect
 	required int32 roleId = 1;
 	required GMPlayerInfo player = 2;
 	required int32 frameinterval = 3; //帧时间 毫秒
+	required int32 mode = 4; //0.lockstep 1.Optimistic 
 }
 
 message GM_Disconnect

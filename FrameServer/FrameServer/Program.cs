@@ -124,6 +124,7 @@ namespace FrameServer
             GM_Connect sendData = new GM_Connect();
             sendData.roleId = user.roleid;
             sendData.frameinterval = FRAME_INTERVAL; //告诉客户端帧时长 毫秒
+            sendData.mode = (int)mMode;              //告诉客户端当前模式
             sendData.player = ProtoTransfer.Get(user.mPlayerInfo);
 
             user.SendUdp(MessageID.GM_CONNECT_SC, sendData);

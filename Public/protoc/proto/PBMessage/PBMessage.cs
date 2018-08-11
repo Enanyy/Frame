@@ -377,6 +377,13 @@ namespace PBMessage
       get { return _frameinterval; }
       set { _frameinterval = value; }
     }
+    private int _mode;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"mode", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int mode
+    {
+      get { return _mode; }
+      set { _mode = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }

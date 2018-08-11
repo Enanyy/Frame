@@ -128,14 +128,5 @@ namespace Network
                 mService.SendUdp(new MessageBuffer(new byte[] { NetworkService.pingByte }), this);
             }
         }
-
-
-        private void OnSendUdp(byte[] data, int length)
-        {
-            if (mService != null && mService.udp != null)
-            {
-                mService.udp.Send(data, length, udpAdress);
-            }
-        }
     }
 }

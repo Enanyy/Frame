@@ -70,6 +70,7 @@ public class PlayerCharacter:MonoBehaviour
         EventDispatch.Dispatch(EventID.Player_Move, EventPlayerMove.sData);
     }
 
+
     public void SetReady()
     {
         mReady = true;

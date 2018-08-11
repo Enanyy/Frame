@@ -199,6 +199,7 @@ public class FrameScene : GameScene, IReceiverHandler
         int roleId = recvData.roleId;
 
         mFrameInterval = recvData.frameinterval;
+        GameApplication.GetSingleton().mode = (Mode)recvData.mode;
 
         PlayerManager.GetSingleton().mRoleId = roleId;
 

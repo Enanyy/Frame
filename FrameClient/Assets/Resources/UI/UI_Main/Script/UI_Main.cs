@@ -9,7 +9,6 @@ public class UI_Main : BaseWindow, IReceiverHandler
 
     public UI_Main() { mWindowType = WindowType.Root; }
 
-    Dropdown mMode;
     InputField mIP;
     InputField mTCP;
     InputField mUDP;
@@ -28,7 +27,6 @@ public class UI_Main : BaseWindow, IReceiverHandler
 
     private void Awake()
     {
-        mMode = transform.Find("mode").GetComponent<Dropdown>();
         mIP = transform.Find("ip").GetComponent<InputField>();
         mTCP = transform.Find("tcp").GetComponent<InputField>();
         mUDP = transform.Find("udp").GetComponent<InputField>();
@@ -52,6 +50,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         mPlayer.gameObject.SetActive(false);
         mFrame.gameObject.SetActive(false);
         mItem.gameObject.SetActive(false);
+        transform.Find("buttons").gameObject.SetActive(false);
 
         RegisterReceiver();
     }
@@ -89,7 +88,6 @@ public class UI_Main : BaseWindow, IReceiverHandler
     {       
         if(result == 0)
         {
-            mMode.gameObject.SetActive(false);
             mIP.gameObject.SetActive(false);
             mTCP.gameObject.SetActive(false);
             mUDP.gameObject.SetActive(false);
@@ -118,6 +116,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         if(mFrame)
         {
             mFrame.gameObject.SetActive(true);
+            transform.Find("buttons").gameObject.SetActive(true);
         }
     }
 
@@ -229,9 +228,6 @@ public class UI_Main : BaseWindow, IReceiverHandler
     // Use this for initialization
     void Start () {
 
-        mMode.onValueChanged.AddListener(OnModeChange);
-        mMode.value = (int)GameApplication.GetSingleton().mode;
-
         UIEventListener.Get(mConnect.gameObject).onClick = (go) => {
             RequestConnect();
         };
@@ -254,13 +250,38 @@ public class UI_Main : BaseWindow, IReceiverHandler
         {
             ReleaseSkill(3);
         };
-      
+
+
+        Transform scaleWindow = transform.Find("buttons/ScaleWindow");
+        UIEventListener.Get(scaleWindow.gameObject).onClick = (go) =>
+        {
+            WindowManager.GetSingleton().Open<UI_ScaleWindow>();
+        };
+
+        Transform fadeWindow = transform.Find("buttons/FadeWindow");
+        UIEventListener.Get(fadeWindow.gameObject).onClick = (go) =>
+        {
+            WindowManager.GetSingleton().Open<UI_FadeWindow>();
+        };
+        Transform moveWindow = transform.Find("buttons/MoveWindow");
+        UIEventListener.Get(moveWindow.gameObject).onClick = (go) =>
+        {
+            WindowManager.GetSingleton().Open<UI_MoveWindow>();
+        };
+
+        Transform popWindow = transform.Find("buttons/PopWindow");
+        UIEventListener.Get(popWindow.gameObject).onClick = (go) =>
+        {
+            WindowManager.GetSingleton().Open<UI_PopWindow>();
+        };
+        Transform dialog = transform.Find("buttons/Dialog");
+
+        UIEventListener.Get(dialog.gameObject).onClick = (go) =>
+        {
+            WindowManager.GetSingleton().Open<UI_Dialog>();
+        };
     }
 
-    void OnModeChange(int value)
-    {
-        GameApplication.GetSingleton().mode = (Mode)value;
-    }
 
     void RequestConnect()
     {
