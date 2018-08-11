@@ -42,6 +42,11 @@ public class SkillMove : MonoBehaviour
             int interval = -10; //伤害
             tmpPlayerCharacter.SetBlood(tmpPlayerCharacter.maxBlood, tmpPlayerCharacter.nowBlood + interval);
 
+            if (tmpPlayerCharacter.nowBlood <= 0)
+            {
+                mPlayerCharacter.SetSpeed(mPlayerCharacter.moveSpeedAddition+ 50, mPlayerCharacter.moveSpeedPercent+ 20);
+            }
+
             Destroy(gameObject);
         }
     }

@@ -28,14 +28,7 @@ public class PlayerManager : SingletonMono<PlayerManager>
     {
         get
         {
-            Vector3 position = new Vector3();
-            position.x = mLastPosition.x;
-            position.y = mLastPosition.y;
-            position.z = mLastPosition.z;
-            mLastPosition.x = 0;
-            mLastPosition.y = 0;
-            mLastPosition.z = 0;
-            return position;
+            return mLastPosition;
         }
     }
 
@@ -154,9 +147,13 @@ public class PlayerManager : SingletonMono<PlayerManager>
                 RaycastHit tmpHit;
                 if (Physics.Raycast(tmpRay, out tmpHit,100))
                 {
+                    mLastPosition.x = 0;
+                    mLastPosition.y = 0;
+                    mLastPosition.z = 0;
+
                     Vector3 position = tmpHit.point;
 
-                    SetClickPosition(1, tmpHit.point);
+                    SetClickPosition(1, position);
 
                     CMD_MoveToPoint data = new CMD_MoveToPoint();
                     data.roleId = mRoleId;

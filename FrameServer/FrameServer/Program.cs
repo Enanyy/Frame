@@ -81,13 +81,18 @@ namespace FrameServer
         /// <typeparam name="T"></typeparam>
         /// <param name="msaageId"></param>
         /// <param name="data"></param>
-        void BroadCast<T>(MessageID msaageId, T data) where T : class, ProtoBuf.IExtensible
+        /// <param name="ready">是否只发给已经准备好的人</param>
+        void BroadCast<T>(MessageID msaageId, T data, bool ready = false) where T : class, ProtoBuf.IExtensible
         {
             for (int i = 0; i < mUserList.Count; ++i)
             {
-                mUserList[i].SendUdp(msaageId, data);
+                if (ready == false || (ready == true && mUserList[i].ready))
+                {
+                    mUserList[i].SendUdp(msaageId, data);
+                }
             }
         }
+
 
         public void Tick(int deltaTime)
         {
@@ -248,7 +253,7 @@ namespace FrameServer
                 GM_Begin sendData = new GM_Begin();
                 sendData.result = 0;
 
-                BroadCast(MessageID.GM_BEGIN_BC, sendData);
+                BroadCast(MessageID.GM_BEGIN_BC, sendData, true);
              
                 BeginGame();
                            
@@ -381,8 +386,8 @@ namespace FrameServer
                     }
                 }
 
- 
-                BroadCast(MessageID.GM_FRAME_BC, sendData);
+
+                BroadCast(MessageID.GM_FRAME_BC, sendData, true);
 
                 mCurrentFrame = frame + 1;
             }
@@ -433,7 +438,7 @@ namespace FrameServer
                 Debug.Log(string.Format("Send frame:{0} user count:{1} command count:{2}", frame, userCount, sendData.command.Count), ConsoleColor.Gray);
             }
 
-            BroadCast(MessageID.GM_FRAME_BC, sendData);         
+            BroadCast(MessageID.GM_FRAME_BC, sendData,true);         
         }
 
         private void OnOptimisticFrame(Session client, GM_Frame recvData)

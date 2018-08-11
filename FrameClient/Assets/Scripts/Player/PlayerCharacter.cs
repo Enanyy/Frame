@@ -16,6 +16,9 @@ public class PlayerCharacter:MonoBehaviour
     public int maxBlood { get { return mPlayerInfo.maxBlood; } }
     public int nowBlood { get { return mPlayerInfo.nowBlood; } }
     public int moveSpeed { get { return (int)mNavMeshAgent.speed * 100; } }
+
+    public int moveSpeedAddition { get { return mPlayerInfo.moveSpeedAddition; } }//移速加成
+    public int moveSpeedPercent { get { return mPlayerInfo.moveSpeedPercent; } }
     public Vector3 position { get { return transform.position; } }
     public Vector3 direction { get { return transform.rotation.eulerAngles; } }
 
