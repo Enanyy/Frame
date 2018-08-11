@@ -18,6 +18,14 @@ public class FrameScene : GameScene, IReceiverHandler
     private long mCurrentFrame = 1; //当前帧
     private long mSentFrame = 0;   //已发送帧（LockStep）
     private long mFrameTime = 0; //游戏时长 毫秒
+
+    private long mBeginTime;
+    private long updateTime {
+        get
+        {   if (mBegin == false) return 0;
+            return (long)(Time.unscaledTime * 1000) - mBeginTime;
+        }
+    }
   
 
     private Queue<Command> mCommandQueue = new Queue<Command>();
@@ -263,6 +271,8 @@ public class FrameScene : GameScene, IReceiverHandler
 
             mBegin = true;
 
+            mBeginTime = (long)(Time.unscaledTime *1000);
+
             EventDispatch.Dispatch(EventID.Begin_Broadcast, mBegin);
 
             mTickThread = new Thread(Tick);
@@ -293,6 +303,7 @@ public class FrameScene : GameScene, IReceiverHandler
         GM_Frame sendData = new GM_Frame();
         sendData.roleId = PlayerManager.GetSingleton().mRoleId;
         sendData.frame = mCurrentFrame;
+        sendData.frametime = mFrameTime;
 
         while (mCommandQueue.Count > 0)
         {
@@ -306,6 +317,7 @@ public class FrameScene : GameScene, IReceiverHandler
 
             sendData.command.Add(cmd);
         }
+
 
         ClientService.GetSingleton().SendUdp(ClientID.Frame, MessageID.GM_FRAME_CS, sendData);
 
@@ -579,6 +591,7 @@ public class FrameScene : GameScene, IReceiverHandler
             GM_Frame sendData = new GM_Frame();
             sendData.roleId = PlayerManager.GetSingleton().mRoleId;
             sendData.frame = mCurrentFrame;
+            sendData.frametime = mFrameTime;
 
             GMCommand data = ProtoTransfer.Get(cmd);
 
@@ -604,7 +617,7 @@ public class FrameScene : GameScene, IReceiverHandler
             data.player.maxBlood = 200;
             data.player.nowBlood = 200;
             data.player.name = "monster " + data.player.roleId;
-            data.position = ProtoTransfer.Get(new Vector3((i+1) * (i %2 == 0? -4:4), 1, 10));
+            data.position = ProtoTransfer.Get(new Vector3((i+1) * (i %2 == 0? -3:3), 1, 10));
             data.direction = ProtoTransfer.Get(Vector3.zero);
 
             Command cmd = new Command();

@@ -335,7 +335,11 @@ namespace FrameServer
             long frame = recvData.frame;
             int roleId = recvData.roleId;
 
-            Debug.Log(string.Format("Receive {0} frame:{1} command:{2}", roleId, frame,recvData.command.Count),ConsoleColor.DarkGray);
+            //减少Log
+            if (recvData.command.Count > 0 || frame % 30 == 0)
+            {
+                Debug.Log(string.Format("Receive {0} serverframe:{1} clientframe:{2} command:{3}", roleId, mCurrentFrame, frame, recvData.command.Count), ConsoleColor.DarkGray);
+            }
 
             if (mFrameDic.ContainsKey(frame) == false)
             {
@@ -441,7 +445,7 @@ namespace FrameServer
 
             long frame = recvData.frame;
 
-            Debug.Log(string.Format("Receive {0} roleid={1} server frame={2} client frame={3}",client.id, roleId, mCurrentFrame, frame),ConsoleColor.DarkYellow);
+            Debug.Log(string.Format("Receive roleid={0} serverframe:{1} clientframe:{2} command:{3}", roleId, mCurrentFrame, frame,recvData.command.Count),ConsoleColor.DarkYellow);
             
             if (mFrameDic.ContainsKey(mCurrentFrame) == false)
             {

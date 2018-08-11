@@ -72,6 +72,7 @@ message GM_Frame
 {
 	required int32 roleId =1;
 	required int64 frame = 2;//客户端当前帧
+	required int64 frametime = 3;//发送时间
 	repeated GMCommand command = 4;
 }
 
