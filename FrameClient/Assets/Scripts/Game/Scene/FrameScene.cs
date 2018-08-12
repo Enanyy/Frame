@@ -19,8 +19,8 @@ public class FrameScene : GameScene, IReceiverHandler
     private long mSentFrame = 0;   //已发送帧（LockStep）
 
     private bool mBegin = false;
-    private long mFrameBeginTime = 0;
-    private long mFrameServerTime;
+    private long mFrameBeginTime = 0;//收到当前帧的时间
+    private long mFrameServerTime;   //当前帧的服务器时间
     private long frameTime //游戏时长 毫秒
     {
         get
