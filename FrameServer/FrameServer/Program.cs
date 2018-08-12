@@ -95,6 +95,18 @@ namespace FrameServer
             }
         }
 
+        User GetUser(int roleid)
+        {
+            for(int i = 0; i < mUserList.Count; ++i)
+            {
+                if(mUserList[i].roleid == roleid)
+                {
+                    return mUserList[i];
+                }
+            }
+            return null;
+        }
+
 
         public void Tick(int deltaTime)
         {
@@ -247,19 +259,57 @@ namespace FrameServer
 
             Debug.Log(string.Format("{0} roleid={1} ready, ready count={2} user count={3}", client.id, recvData.roleId, readyCount, mUserList.Count), ConsoleColor.Blue);
 
-            //所有的玩家都准备好了，可以开始同步
-            if (readyCount >= mUserList.Count)
+            if (mBegin == false)
             {
-                mFrameDic = new Dictionary<long, Dictionary<int, List<Command>>>();
+                //所有的玩家都准备好了，可以开始同步
+                if (readyCount >= mUserList.Count)
+                {
+                    mFrameDic = new Dictionary<long, Dictionary<int, List<Command>>>();
 
-                GM_Begin sendData = new GM_Begin();
-                sendData.result = 0;
+                    GM_Begin sendData = new GM_Begin();
+                    sendData.result = 0;
 
-                BroadCast(MessageID.GM_BEGIN_BC, sendData, true);
-             
-                BeginGame();
-                           
+                    BroadCast(MessageID.GM_BEGIN_BC, sendData, true);
+
+                    BeginGame();
+
+                }
             }
+            /*
+            else //断线重连
+            {           
+                User user = GetUser(recvData.roleId);
+                if(user!=null)
+                {
+                    GM_Begin sendData = new GM_Begin();
+                    sendData.result = 0;
+
+                    user.SendUdp(MessageID.GM_BEGIN_BC, sendData);
+
+                    GM_Frame_BC frameData = new GM_Frame_BC();
+                    //给他发送当前帧之前的数据
+                    for (long frame = 1; frame < mCurrentFrame - 1; ++frame)
+                    {
+                        if (mFrameDic.ContainsKey(frame))
+                        {
+                            frameData.frame = frame;
+                            frameData.frametime = 0;
+                            var it = mFrameDic[frame].GetEnumerator();
+                            while (it.MoveNext())
+                            {
+                                for (int i = 0, count = it.Current.Value.Count; i < count; ++i)
+                                {
+                                    GMCommand cmd = ProtoTransfer.Get(it.Current.Value[i]);
+
+                                    frameData.command.Add(cmd);
+                                }
+                            }
+                            user.SendUdp(MessageID.GM_FRAME_BC, frameData);
+                        }
+                    }
+                }
+            }
+            */
         }
 
         private void BeginGame()
@@ -269,9 +319,15 @@ namespace FrameServer
             mBegin = true; //游戏开始
 
             mFrameTime = 0;
+
+            CreateMonster();
+        }
+        void CreateMonster()
+        {
             //服务器添加命令
 
-            for (int i = 0; i < 3; ++i) {
+            for (int i = 0; i < 3; ++i)
+            {
 
                 Monster monster = new Monster(mMonsterId++);
                 mMonsterList.Add(monster);
@@ -294,10 +350,8 @@ namespace FrameServer
 
                 AddCommand(cmd);
             }
-        
-            
-        }
 
+        }
 
         /// <summary>
         /// 服务器添加一个命令
