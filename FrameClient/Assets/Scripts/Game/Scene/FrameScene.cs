@@ -296,24 +296,25 @@ public class FrameScene : GameScene, IReceiverHandler
         sendData.roleId = PlayerManager.GetSingleton().mRoleId;
         sendData.frame = mCurrentFrame;
         sendData.frametime = mFrameTime;
-
-        while (mCommandQueue.Count > 0)
+        lock (mCommandQueue)
         {
-            Command frame = mCommandQueue.Dequeue();
-            GMCommand cmd = new GMCommand();
-            cmd.id = 0;
-            cmd.frame = frame.frame;
-            cmd.type = frame.type;
-            cmd.data = frame.data;
-            cmd.frametime = frame.time;
+            while (mCommandQueue.Count > 0)
+            {
+                Command frame = mCommandQueue.Dequeue();
+                GMCommand cmd = new GMCommand();
+                cmd.id = 0;
+                cmd.frame = frame.frame;
+                cmd.type = frame.type;
+                cmd.data = frame.data;
+                cmd.frametime = frame.time;
 
-            sendData.command.Add(cmd);
+                sendData.command.Add(cmd);
+            }
+            mCommandQueue.Clear();
         }
-
 
         ClientService.GetSingleton().SendUdp(ClientID.Frame, MessageID.GM_FRAME_CS, sendData);
 
-        mCommandQueue.Clear();
 
         mSentFrame++;
     }
@@ -587,7 +588,10 @@ public class FrameScene : GameScene, IReceiverHandler
 
         if (GameApplication.GetSingleton().mode == Mode.LockStep)
         {
-            mCommandQueue.Enqueue(cmd);
+            lock (mCommandQueue)
+            {
+                mCommandQueue.Enqueue(cmd);
+            }
         }
         else
         {
