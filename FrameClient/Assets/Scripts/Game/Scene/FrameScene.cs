@@ -19,15 +19,9 @@ public class FrameScene : GameScene, IReceiverHandler
     private long mSentFrame = 0;   //已发送帧（LockStep）
 
     private bool mBegin = false;
-    private long mFrameBeginTime = 0;//收到当前帧的时间
-    private long mFrameServerTime;   //当前帧的服务器时间
-    private long frameTime //游戏时长 毫秒
-    {
-        get
-        {   if (mBegin == false) return 0;
-            return mFrameServerTime +(DateTime.Now.Ticks - mFrameBeginTime) / 1000;
-        }
-    }
+   
+    private long mFrameTime;   //当前帧的服务器时间
+   
   
 
     private Queue<Command> mCommandQueue = new Queue<Command>();
@@ -78,10 +72,12 @@ public class FrameScene : GameScene, IReceiverHandler
         while (mBegin)
         {
             Thread.Sleep(1);
-          
+
+            mFrameTime += 1;
+
             if (GameApplication.GetSingleton().mode == Mode.LockStep)
             {
-                if (frameTime % mFrameInterval == 0)
+                if (mFrameTime % mFrameInterval == 0)
                 {
                     SendFrame();
                 }
@@ -256,9 +252,8 @@ public class FrameScene : GameScene, IReceiverHandler
 
             mBegin = true;
 
-            mFrameServerTime = 0;
-            mFrameBeginTime = DateTime.Now.Ticks;
-
+            mFrameTime = 0;
+           
             mTickThread = new Thread(Tick);
             mTickThread.Start();
 
@@ -300,7 +295,7 @@ public class FrameScene : GameScene, IReceiverHandler
         GM_Frame sendData = new GM_Frame();
         sendData.roleId = PlayerManager.GetSingleton().mRoleId;
         sendData.frame = mCurrentFrame;
-        sendData.frametime = frameTime;
+        sendData.frametime = mFrameTime;
 
         while (mCommandQueue.Count > 0)
         {
@@ -336,8 +331,8 @@ public class FrameScene : GameScene, IReceiverHandler
         }
 
         long frame = recvData.frame;
-        mFrameBeginTime = DateTime.Now.Ticks;
-        mFrameServerTime = recvData.frametime;
+      
+        mFrameTime = recvData.frametime;
 
         if (frame == mCurrentFrame)
         {
@@ -382,14 +377,16 @@ public class FrameScene : GameScene, IReceiverHandler
 
         mCurrentFrame = recvData.frame;
 
-        mFrameBeginTime = DateTime.Now.Ticks;
-        mFrameServerTime = recvData.frametime;
-
+       
         //不打印那么多信息
         if (recvData.command.Count > 0 || recvData.frame % 30 == 0)
         {
             Debug.Log("Receive frame:" + recvData.frame + " command:" + recvData.command.Count);
+            Debug.Log(recvData.frametime + "," + mFrameTime + ","+(mFrameTime - recvData.frametime));
         }
+
+        mFrameTime = recvData.frametime;
+
 
         for (int i = 0; i < recvData.command.Count; ++i)
         {
@@ -586,7 +583,7 @@ public class FrameScene : GameScene, IReceiverHandler
 
         Debug.Log("AddFrame " + (CommandID)cmd.type);
 
-        cmd.SetFrame(mCurrentFrame,frameTime);
+        cmd.SetFrame(mCurrentFrame, mFrameTime);
 
         if (GameApplication.GetSingleton().mode == Mode.LockStep)
         {
@@ -599,7 +596,7 @@ public class FrameScene : GameScene, IReceiverHandler
             GM_Frame sendData = new GM_Frame();
             sendData.roleId = PlayerManager.GetSingleton().mRoleId;
             sendData.frame = mCurrentFrame;
-            sendData.frametime = frameTime;
+            sendData.frametime = mFrameTime;
 
             GMCommand data = ProtoTransfer.Get(cmd);
 
@@ -630,7 +627,7 @@ public class FrameScene : GameScene, IReceiverHandler
 
             Command cmd = new Command();
             cmd.Set(CommandID.CREATE_MONSTER, data);
-            cmd.SetFrame(mCurrentFrame, frameTime);
+            cmd.SetFrame(mCurrentFrame, mFrameTime);
 
             DoCommand(cmd);
 
