@@ -532,8 +532,15 @@ namespace PBMessage
       get { return _frame; }
       set { _frame = value; }
     }
+    private long _frametime;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"frametime", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public long frametime
+    {
+      get { return _frametime; }
+      set { _frametime = value; }
+    }
     private readonly global::System.Collections.Generic.List<PBMessage.GMCommand> _command = new global::System.Collections.Generic.List<PBMessage.GMCommand>();
-    [global::ProtoBuf.ProtoMember(2, Name=@"command", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(3, Name=@"command", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public global::System.Collections.Generic.List<PBMessage.GMCommand> command
     {
       get { return _command; }

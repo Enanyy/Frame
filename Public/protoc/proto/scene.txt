@@ -79,7 +79,8 @@ message GM_Frame
 message GM_Frame_BC
 {
 	required int64 frame = 1; //服务器当前帧
-	repeated GMCommand command = 2;
+	required int64 frametime = 2;//发送时间
+	repeated GMCommand command = 3;
 }
 
 

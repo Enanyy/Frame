@@ -38,8 +38,15 @@ namespace FrameServer
         Dictionary<long, Dictionary<int, List<Command>>> mFrameDic = new Dictionary<long, Dictionary<int, List<Command>>>();//关键帧
 
         private bool mBegin = false;    //游戏是否开始
+        private long mBeginTime = 0;
         private long mCurrentFrame = 1; //当前帧数
-        private long mFrameTime = 0;    //游戏开始后的游戏时长，毫秒
+        private long frameTime
+        {
+            get {
+                if (mBegin == false) return 0;
+                return (DateTime.Now.Ticks - mBeginTime) / 1000;
+            }
+        }
 
         public enum Mode
         {
@@ -100,11 +107,9 @@ namespace FrameServer
 
             if(mBegin && mUserList.Count > 0)
             {
-                mFrameTime += deltaTime;
-
                 if(mMode == Mode.Optimistic)
                 {
-                    if(mFrameTime % FRAME_INTERVAL == 0)
+                    if(frameTime % FRAME_INTERVAL == 0)
                     {
                         SendFrame();
                     }
@@ -266,6 +271,7 @@ namespace FrameServer
 
             mBegin = true; //游戏开始
 
+            mBeginTime = DateTime.Now.Ticks;
             //服务器添加命令
 
             for (int i = 0; i < 3; ++i) {
@@ -312,7 +318,7 @@ namespace FrameServer
             }
 
            
-            cmd.SetFrame(mCurrentFrame, mFrameTime);
+            cmd.SetFrame(mCurrentFrame, frameTime);
 
             if (mFrameDic[mCurrentFrame].ContainsKey(SERVER_ROLEID) == false)
             {
@@ -364,6 +370,7 @@ namespace FrameServer
             {
                 GM_Frame_BC sendData = new GM_Frame_BC();
                 sendData.frame = frame;
+                sendData.frametime = frameTime;
                 var it = frames.GetEnumerator();
                 while(it.MoveNext())
                 {
@@ -400,7 +407,7 @@ namespace FrameServer
             GM_Frame_BC sendData = new GM_Frame_BC();
 
             sendData.frame = frame;
-            
+            sendData.frametime = frameTime;
 
             if (mFrameDic.ContainsKey(frame))
             {
@@ -446,7 +453,7 @@ namespace FrameServer
             for (int i = 0; i < recvData.command.Count; ++i)
             {
                 //乐观模式以服务器收到的时间为准
-                Command frameData = new Command(recvData.command[i].frame, recvData.command[i].type, recvData.command[i].data, mFrameTime);
+                Command frameData = new Command(recvData.command[i].frame, recvData.command[i].type, recvData.command[i].data, frameTime);
                 if (mFrameDic[mCurrentFrame].ContainsKey(roleId) == false)
                 {
                     mFrameDic[mCurrentFrame].Add(roleId, new List<Command>());
