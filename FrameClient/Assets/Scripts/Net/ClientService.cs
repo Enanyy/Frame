@@ -16,7 +16,7 @@ namespace Network
 
         public event OnDebugHandler onDebug;
 
-        public void Connect(ClientID varClientID, string ip, int tcpPort, int udpPort, OnConnectHandler onConnect, OnDisconnectHandler onDisconnect)
+        public void Connect(ClientID varClientID, string ip, int tcpPort, int udpPort,bool kcp, OnConnectHandler onConnect, OnDisconnectHandler onDisconnect)
         {
             int id = (int)varClientID;
 
@@ -26,7 +26,7 @@ namespace Network
                 mClientDic[id].Disconnect();
             }
 
-            Client c = new Client();
+            Client c = new Client(kcp);
 
             c.onConnect += onConnect;
             c.onDisconnect += onDisconnect;

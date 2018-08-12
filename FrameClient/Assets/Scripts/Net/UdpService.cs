@@ -17,18 +17,35 @@ namespace Network
         private Thread mReceiveThread, mSendThread;
 
 
-        public bool IsConnected { get { return Client.Connected; } }
+        public bool IsConnected { get { return Client !=null && Client.Connected; } }
 
         public event OnConnectHandler onConnect;
         public event OnMessageHandler onMessage;
         public event OnDisconnectHandler onDisconnet;
         public event OnExceptionHandler onException;
 
+        public bool IsKcp { get { return mKCP!=null; } }
 
-        public UdpService(Client service)
+        private KCP mKCP;
+        private uint mNextUpdateTime = 0;
+        private static readonly DateTime utc_time = new DateTime(1970, 1, 1);
+
+        private static uint current
+        {
+            get
+            {
+                return (uint)(Convert.ToInt64(DateTime.UtcNow.Subtract(utc_time).TotalMilliseconds) & 0xffffffff);
+            }
+        }
+        public UdpService(Client service, int sock, bool kcp)
         {
             mService = service;
 
+            if(kcp)
+            {
+                mKCP = new KCP((uint)sock, OnSendKcp);
+                mKCP.NoDelay(1, 10, 2, 1);
+            }
         }
 
         public new bool Connect(string ip, int port)
@@ -68,9 +85,17 @@ namespace Network
             {
                 return;
             }
-            lock (mSendMessageQueue)
+            if (IsKcp == false)
             {
-                mSendMessageQueue.Enqueue(message);
+                lock (mSendMessageQueue)
+                {
+                    mSendMessageQueue.Enqueue(message);
+                }
+            }
+            else
+            {
+                mKCP.Send(message.buffer);
+                mNextUpdateTime = 0;
             }
         }
 
@@ -101,16 +126,23 @@ namespace Network
             {
                 try
                 {
-                    lock (mSendMessageQueue)
+                    if (IsKcp == false)
                     {
-                        while (mSendMessageQueue.Count > 0)
+                        lock (mSendMessageQueue)
                         {
-                            MessageBuffer message = mSendMessageQueue.Dequeue();
-                            if (message == null) continue;
+                            while (mSendMessageQueue.Count > 0)
+                            {
+                                MessageBuffer message = mSendMessageQueue.Dequeue();
+                                if (message == null) continue;
 
-                            int ret = Send(message.buffer, message.length);
+                                int ret = Send(message.buffer, message.length);
+                            }
+                            mSendMessageQueue.Clear();
                         }
-                        mSendMessageQueue.Clear();
+                    }
+                    else
+                    {
+                        UpdateKcp();
                     }
 
                 }
@@ -133,11 +165,18 @@ namespace Network
                     IPEndPoint ip = mServerAdress;
                     byte[] data = Receive(ref ip);
 
-                    if (data.Length > 0 && MessageBuffer.IsValid(data))
+                    if (data.Length > 0)
                     {
-                        if (onMessage != null)
+                        if (IsKcp == false)
                         {
-                            onMessage(new MessageBuffer(data));
+                            if (onMessage != null && MessageBuffer.IsValid(data))
+                            {
+                                onMessage(new MessageBuffer(data));
+                            }
+                        }
+                        else
+                        {
+                            OnReceiveKcp(data);
                         }
                     }
                 }
@@ -150,5 +189,47 @@ namespace Network
                 Thread.Sleep(10);
             }
         }
+
+        #region KCP
+        private void OnSendKcp(byte[] data, int length)
+        {
+            Send(data, length);
+        }
+
+        private void UpdateKcp()
+        {
+            if(mKCP!=null)
+            {
+                uint time = current;
+                if (time >= mNextUpdateTime)
+                {
+                    mKCP.Update(time);
+                    mNextUpdateTime = mKCP.Check(time);
+                }
+            }
+        }
+
+        private void OnReceiveKcp(byte[] data)
+        {
+            if (mKCP != null)
+            {
+                mKCP.Input(data);
+
+                int size = mKCP.PeekSize();
+                while (size > 0)
+                {
+                    byte[] buffer = new byte[size];
+                    if (mKCP.Recv(buffer) > 0)
+                    {
+                        MessageBuffer message = new MessageBuffer(buffer);
+                        if (onMessage !=null && message.IsValid())
+                        {
+                            onMessage(message);
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

@@ -20,6 +20,17 @@ namespace Network
         public Socket socket { get { return mSocket; } }
         public NetworkService service { get { return mService; } }
 
+        private KCP mKCP;
+        private uint mNextUpdateTime = 0;
+        private static readonly DateTime utc_time = new DateTime(1970, 1, 1);
+
+        private static uint current
+        {
+            get
+            {
+                return (uint)(Convert.ToInt64(DateTime.UtcNow.Subtract(utc_time).TotalMilliseconds) & 0xffffffff);
+            }
+        }
 
         public bool Pinging
         {
@@ -40,6 +51,11 @@ namespace Network
 
             mActiveThread.Start();
 
+            if (mService.udp.IsKcp)
+            {
+                mKCP = new KCP((uint)id, OnSendKcp);
+                mKCP.NoDelay(1, 10, 2, 1);
+            }
         }
 
         public void SendAcceptPoll()
@@ -63,7 +79,6 @@ namespace Network
             {
                 try
                 {
-
                     if (mSocket != null && mSocket.Connected)
                     {
                         return true;
@@ -85,10 +100,17 @@ namespace Network
         }
 
         public void SendUdp(MessageBuffer message) 
-        {  
-            if(mService!=null)
+        {
+            if (mService != null)
             {
-                mService.SendUdp(message, this);
+                if (mService.udp.IsKcp)
+                {
+                    SendKcp(message);
+                }
+                else
+                {
+                    mService.SendUdp(message, this);
+                }
             }
         }
 
@@ -129,5 +151,66 @@ namespace Network
             }
         }
 
+
+
+
+        #region KCP
+        private void SendKcp(MessageBuffer message)
+        {
+            if (mKCP != null)
+            {
+                mNextUpdateTime = 0;//可以马上更新
+                mKCP.Send(message.buffer);
+            }
+        }
+        public void Update()
+        {
+            if (mKCP == null)
+            {
+                return;
+            }
+            if (mService == null || mService.udp == null || mService.udp.IsActive == false)
+            {
+                return;
+            }
+
+            uint time = current;
+            if (time >= mNextUpdateTime)
+            {
+                mKCP.Update(time);
+                mNextUpdateTime = mKCP.Check(time);
+            }
+        }
+
+        private void OnSendKcp(byte[] data, int length)
+        {
+            if(mService!=null && mService.udp != null &mService.udp.IsActive)
+            {
+                mService.udp.Send(data, length, udpAdress);
+            }
+        }
+
+        public void OnReceiveKcp(byte[] data)
+        {
+            if(mKCP!=null)
+            {
+                mKCP.Input(data);
+
+                int size = mKCP.PeekSize();
+                while(size > 0)
+                {
+                    byte[] buffer = new byte[size];
+                    if(mKCP.Recv(buffer) > 0)
+                    {
+                        MessageBuffer message = new MessageBuffer(buffer);
+                        if(message.IsValid())
+                        {
+                            mService.OnReceive(new MessageInfo(message, this));
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

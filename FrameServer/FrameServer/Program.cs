@@ -23,6 +23,7 @@ namespace FrameServer
 
         public const int TCP_PORT = 1255;
         public const int UDP_PORT = 1337;
+        public const bool USE_KCP = false;
 
         public const int FRAME_INTERVAL = 100; //帧时间 毫秒
 
@@ -56,7 +57,7 @@ namespace FrameServer
             MessageBuffer.MESSAGE_MAX_VALUE = (int)MessageID.MaxValue;
             MessageBuffer.MESSAGE_MIN_VALUE = (int)MessageID.MinValue;
 
-            mService = new NetworkService(TCP_PORT, UDP_PORT);
+            mService = new NetworkService(TCP_PORT, UDP_PORT, USE_KCP);
 
             Debug.ENABLE_ERROR = true;
 

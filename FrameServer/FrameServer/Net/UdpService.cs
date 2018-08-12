@@ -23,11 +23,14 @@ namespace Network
         public event OnReceiveHandler onReceive;
         public event OnUdpConnectHandler onConnect;
 
+        private bool mKcp = false;
+        public bool IsKcp { get { return mKcp; } }
 
-        public UdpService(NetworkService service, int port) : base(port)
+        public UdpService(NetworkService service, int port, bool kcp) : base(port)
         {
             mService = service;
             mPort = port;
+            mKcp = kcp;
         }
 
         public bool Listen()
@@ -90,8 +93,6 @@ namespace Network
 
                     if (data.Length > 0)
                     {
-                        var buffer = new MessageBuffer(data);
-
                         Session c = mService.GetSession(ip);
 
                         //Pinged
@@ -105,34 +106,48 @@ namespace Network
                             {
                                 Send(data, 1, ip);
                             }
-                        }
-
-                        else if (data.Length == 4)
+                        }             
+                        else
                         {
-                            int id = BitConverter.ToInt32(data, 0);
-                            c = mService.GetSession(id);
-
-                            if (c != null)
+                            if (data.Length == 4 || (mKcp && data.Length == 28))
                             {
-                                c.udpAdress = ip;
-                                if (onConnect != null)
+                                int id = BitConverter.ToInt32(data, 0);
+                                c = mService.GetSession(id);
+
+                                if (c != null && (c.udpAdress == null || c.udpAdress.Equals(id) == false))
                                 {
-                                    onConnect(c);
+                                    c.udpAdress = ip;
+                                    if (onConnect != null)
+                                    {
+                                        onConnect(c);
+                                    }
+                                }
+                            }
+
+                            if (mKcp == false)
+                            {
+                                var buffer = new MessageBuffer(data);
+                                if (buffer.IsValid())
+                                {
+                                    if (c == null || c.id != buffer.extra())
+                                    {
+                                        c = mService.GetSession(buffer.extra());
+                                    }
+                                    if (onReceive != null && c != null)
+                                    {
+                                        onReceive(new MessageInfo(buffer, c));
+                                    }
+                                }                               
+                            }
+                            else
+                            {
+                                if(c!=null)
+                                {
+                                    c.OnReceiveKcp(data);
                                 }
                             }
                         }
-                        else if (buffer.IsValid())
-                        {
-                            if (c == null || c.id != buffer.extra())
-                            {
-                                c = mService.GetSession(buffer.extra());
-                            }
 
-                            if (onReceive != null && c != null)
-                            {
-                                onReceive(new MessageInfo(buffer, c));
-                            }
-                        }
                     }
 
                     Thread.Sleep(1);
@@ -159,29 +174,36 @@ namespace Network
         {
             while (IsActive)
             {
-                lock (mSendMessageQueue)
+                if (mKcp == false)
                 {
-                    while (mSendMessageQueue.Count > 0)
+                    lock (mSendMessageQueue)
                     {
-                        MessageInfo message = mSendMessageQueue.Dequeue();
+                        while (mSendMessageQueue.Count > 0)
+                        {
+                            MessageInfo message = mSendMessageQueue.Dequeue();
 
-                        if (message == null) continue;
+                            if (message == null) continue;
 
-                        try
-                        {
-                           Send(message.buffer.buffer, message.buffer.size, message.session.udpAdress);
+                            try
+                            {
+                                Send(message.buffer.buffer, message.buffer.size, message.session.udpAdress);
+                            }
+                            catch (SocketException e)
+                            {
+                                mService.Debug(e.Message);
+                            }
+                            catch (Exception e)
+                            {
+                                mService.CatchException(e);
+                                throw e;
+                            }
                         }
-                        catch (SocketException e)
-                        {
-                            mService.Debug(e.Message);
-                        }
-                        catch (Exception e)
-                        {
-                            mService.CatchException(e);
-                            throw e;
-                        }
+                        mSendMessageQueue.Clear();
                     }
-                    mSendMessageQueue.Clear();
+                }
+                else
+                {
+                    mService.UpdateKcp();
                 }
 
                 Thread.Sleep(1);

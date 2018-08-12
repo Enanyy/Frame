@@ -31,7 +31,7 @@ namespace Network
 
 
 
-        int numberOfClient = 0;
+        int numberOfClient = 1;
 
         private List<Session> mDisconnectList = new List<Session>();
         private List<Session> mConnectedList = new List<Session>();
@@ -61,10 +61,10 @@ namespace Network
         public TcpService tcp { get { return mTcp; } }
         public UdpService udp { get { return mUdp; } }
 
-        public NetworkService(int tcp, int udp)
+        public NetworkService(int tcp, int udp, bool kcp)
         {
             mTcp = new TcpService(this, tcp);
-            mUdp = new UdpService(this, udp);
+            mUdp = new UdpService(this, udp, kcp);
         }
 
         public bool IsActive
@@ -178,10 +178,11 @@ namespace Network
                     mDebugMessageList.RemoveAt(0);
                 }
             }
+          
         }
 
 
-        void OnReceive(MessageInfo message)
+        public void OnReceive(MessageInfo message)
         {
             if (message == null)
             {
@@ -196,14 +197,12 @@ namespace Network
 
         void OnTcpConnect(Socket s)
         {
-            Session c = new Session(numberOfClient, s, this);
+            Session c = new Session(numberOfClient++, s, this);
             lock (mSessionList)
             {
                 mSessionList.Add(c);
             }
             c.SendAcceptPoll();
-
-            numberOfClient++;
         }
 
         void OnUdpConnect(Session c)
@@ -297,5 +296,20 @@ namespace Network
                 return ex.Message;
             }
         }
+
+#region KCP
+
+        public void UpdateKcp()
+        {
+            lock (mSessionList)
+            {
+                for (int i = 0; i < mSessionList.Count; ++i)
+                {
+                    mSessionList[i].Update();
+                }
+            }
+        }
+
+#endregion
     }
 }

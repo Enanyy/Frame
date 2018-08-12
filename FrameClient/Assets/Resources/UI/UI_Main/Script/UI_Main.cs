@@ -304,6 +304,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         {
             return;
         }
+        EventConnect.sData.kcp = GameApplication.GetSingleton().kcp;
 
         EventDispatch.Dispatch(EventID.Connect_Request, EventConnect.sData);
     }

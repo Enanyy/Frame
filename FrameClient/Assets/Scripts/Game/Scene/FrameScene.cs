@@ -568,7 +568,13 @@ public class FrameScene : GameScene, IReceiverHandler
     {
         Debug.Log("Request connect server.");
 
-        ClientService.GetSingleton().Connect(ClientID.Frame,data.ip, data.tcpPort,data.udpPort, OnConnectSuccess, OnConnectFail);
+        ClientService.GetSingleton().Connect(ClientID.Frame,
+            data.ip,
+            data.tcpPort,
+            data.udpPort,
+            data.kcp,
+            OnConnectSuccess, 
+            OnConnectFail);
     }
 
     void OnAddCommand( Command cmd)

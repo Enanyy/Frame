@@ -64,10 +64,10 @@ namespace Network
         private int mAcceptSock = 0;
         public int acceptSock { get { return mAcceptSock; } }
 
-        public Client()
+        private bool mIsKcp = false;
+        public Client(bool kcp)
         {
-           
-            
+            mIsKcp = kcp;
         }
 
         public void Connect(string ip, int tcpPort, int udpPort)
@@ -101,7 +101,7 @@ namespace Network
         {
             mAcceptSock = sock;
 
-            mUdp = new UdpService(this);
+            mUdp = new UdpService(this,sock, mIsKcp);
 
             mUdp.onConnect += OnConnect;
             mUdp.onDisconnet += OnDisconnect;
