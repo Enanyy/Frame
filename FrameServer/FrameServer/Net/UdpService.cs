@@ -90,65 +90,65 @@ namespace Network
                 {
                     IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
                     byte[] data = Receive(ref ip);
-
-                    if (data.Length > 0)
-                    {
+          
+                    //if (data.Length > 0)
+                    //{
                         Session c = mService.GetSession(ip);
 
                         //Pinged
-                        if (data.Length == 1 && data[0] == NetworkService.pingByte)
+                        //if (data.Length == 1 && data[0] == NetworkService.pingByte)
+                        //{
+                        //    if (c != null && c.Pinging)
+                        //    {
+                        //        c.Ping();
+                        //    }
+                        //    else
+                        //    {
+                        //        Send(data, 1, ip);
+                        //    }
+                        //}             
+                        //else
+                        //{
+                        if (data.Length == 4 || (mKcp && data.Length == 28))
                         {
-                            if (c != null && c.Pinging)
-                            {
-                                c.Ping();
-                            }
-                            else
-                            {
-                                Send(data, 1, ip);
-                            }
-                        }             
-                        else
-                        {
-                            if (data.Length == 4 || (mKcp && data.Length == 28))
-                            {
-                                int id = BitConverter.ToInt32(data, 0);
-                                c = mService.GetSession(id);
+                            int id = BitConverter.ToInt32(data, 0);
+                            c = mService.GetSession(id);
 
-                                if (c != null && (c.udpAdress == null || c.udpAdress.Equals(id) == false))
-                                {
-                                    c.udpAdress = ip;
-                                    if (onConnect != null)
-                                    {
-                                        onConnect(c);
-                                    }
-                                }
-                            }
-
-                            if (mKcp == false)
+                            if (c != null && (c.udpAdress == null || c.udpAdress.Equals(id) == false))
                             {
-                                var buffer = new MessageBuffer(data);
-                                if (buffer.IsValid())
+                                c.udpAdress = ip;
+                                if (onConnect != null)
                                 {
-                                    if (c == null || c.id != buffer.extra())
-                                    {
-                                        c = mService.GetSession(buffer.extra());
-                                    }
-                                    if (onReceive != null && c != null)
-                                    {
-                                        onReceive(new MessageInfo(buffer, c));
-                                    }
-                                }                               
-                            }
-                            else
-                            {
-                                if(c!=null)
-                                {
-                                    c.OnReceiveKcp(data);
+                                    onConnect(c);
                                 }
                             }
                         }
 
-                    }
+                        if (mKcp == false)
+                        {
+                            var buffer = new MessageBuffer(data);
+                            if (buffer.IsValid())
+                            {
+                                if (c == null || c.id != buffer.extra())
+                                {
+                                    c = mService.GetSession(buffer.extra());
+                                }
+                                if (onReceive != null && c != null)
+                                {
+                                    onReceive(new MessageInfo(buffer, c));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (c != null)
+                            {
+                                c.OnReceiveKcp(data);
+                            }
+                        }
+                        //}
+
+                    //}
 
                     Thread.Sleep(1);
 

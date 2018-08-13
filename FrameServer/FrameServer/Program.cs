@@ -23,7 +23,7 @@ namespace FrameServer
 
         public const int TCP_PORT = 1255;
         public const int UDP_PORT = 1337;
-        public const bool USE_KCP = false;
+
 
         public const int FRAME_INTERVAL = 100; //帧时间 毫秒
 
@@ -57,7 +57,17 @@ namespace FrameServer
             MessageBuffer.MESSAGE_MAX_VALUE = (int)MessageID.MaxValue;
             MessageBuffer.MESSAGE_MIN_VALUE = (int)MessageID.MinValue;
 
-            mService = new NetworkService(TCP_PORT, UDP_PORT, USE_KCP);
+            Debug.Log("1. lockstep mode.");
+            Debug.Log("2. optimistic mode.");
+            mMode = Console.ReadLine() == "1" ? Mode.LockStep : Mode.Optimistic;
+
+           
+            Debug.Log("1. use udp.");
+            Debug.Log("2. use kcp.");
+            bool use_kcp = false;
+            use_kcp = Console.ReadLine() == "1" ? false : true;
+
+            mService = new NetworkService(TCP_PORT, UDP_PORT, use_kcp);
 
             Debug.ENABLE_ERROR = true;
 
@@ -66,14 +76,6 @@ namespace FrameServer
             mService.onMessage += OnMessage;
             mService.onDisconnect += OnDisconnect;
             mService.onDebug += OnDebug;
-
-
-            Debug.Log("1. lockstep mode.");
-            Debug.Log("2. optimistic mode.");
-            
-            string input = Console.ReadLine();
-
-            mMode = input == "1" ? Mode.LockStep : Mode.Optimistic;
 
             mService.Start();
         }

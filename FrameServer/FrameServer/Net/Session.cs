@@ -159,8 +159,8 @@ namespace Network
         {
             if (mKCP != null)
             {
-                mNextUpdateTime = 0;//可以马上更新
                 mKCP.Send(message.buffer);
+                mNextUpdateTime = 0;//可以马上更新
             }
         }
         public void Update()
@@ -174,41 +174,50 @@ namespace Network
                 return;
             }
 
-            uint time = current;
-            if (time >= mNextUpdateTime)
-            {
-                mKCP.Update(time);
-                mNextUpdateTime = mKCP.Check(time);
-            }
+           
+                uint time = current;
+                if (time >= mNextUpdateTime)
+                {
+                    mKCP.Update(time);
+                    mNextUpdateTime = mKCP.Check(time);
+                }
+            
         }
 
         private void OnSendKcp(byte[] data, int length)
         {
-            if(mService!=null && mService.udp != null &mService.udp.IsActive)
+            try
             {
-                mService.udp.Send(data, length, udpAdress);
+                if (mService != null && mService.udp != null & mService.udp.IsActive)
+                {
+                    mService.udp.Send(data, length, udpAdress);
+                }
+            }
+            catch (Exception e)
+            {
+                Disconnect();
             }
         }
 
         public void OnReceiveKcp(byte[] data)
         {
-            if(mKCP!=null)
+            if (mKCP != null)
             {
                 mKCP.Input(data);
 
-                int size = mKCP.PeekSize();
-                while(size > 0)
+                for(int size = mKCP.PeekSize(); size > 0;  size = mKCP.PeekSize())
                 {
                     byte[] buffer = new byte[size];
-                    if(mKCP.Recv(buffer) > 0)
+                    if (mKCP.Recv(buffer) > 0)
                     {
                         MessageBuffer message = new MessageBuffer(buffer);
-                        if(message.IsValid())
+                        if (message.IsValid())
                         {
                             mService.OnReceive(new MessageInfo(message, this));
                         }
                     }
                 }
+
             }
         }
         #endregion

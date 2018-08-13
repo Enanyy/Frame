@@ -177,8 +177,7 @@ namespace Network
                     onDebug(mDebugMessageList[0]);
                     mDebugMessageList.RemoveAt(0);
                 }
-            }
-          
+            }        
         }
 
 
@@ -297,7 +296,7 @@ namespace Network
             }
         }
 
-#region KCP
+        #region KCP
 
         public void UpdateKcp()
         {
@@ -310,6 +309,6 @@ namespace Network
             }
         }
 
-#endregion
+        #endregion
     }
 }
