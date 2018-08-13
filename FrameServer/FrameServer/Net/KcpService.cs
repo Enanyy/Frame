@@ -139,7 +139,7 @@ namespace Network
                     {
                         continue;
                     }
-                    sessions[i].Update();
+                    sessions[i].UpdateKcp();
                 }
 
                 Thread.Sleep(1);

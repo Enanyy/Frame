@@ -163,7 +163,7 @@ namespace Network
                 mNextUpdateTime = 0;//可以马上更新
             }
         }
-        public void Update()
+        public void UpdateKcp()
         {
             if (mKCP == null)
             {
