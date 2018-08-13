@@ -113,6 +113,9 @@ namespace Network
                 mSendThread.Abort();
                 mSendThread = null;
             }
+
+            mKCP = null;
+
             if (onDisconnet != null)
             {
                 onDisconnet();
@@ -142,9 +145,8 @@ namespace Network
                     }
                     else
                     {
-                        UpdateKcp();
+                       UpdateKcp();  
                     }
-
                 }
                 catch (Exception e)
                 {
@@ -152,7 +154,7 @@ namespace Network
                     throw e;
                 }
 
-                Thread.Sleep(10);
+                Thread.Sleep(1);
             }
         }
 
@@ -186,19 +188,23 @@ namespace Network
                     throw e;
                 }
 
-                Thread.Sleep(10);
+                Thread.Sleep(1);
             }
         }
 
         #region KCP
         private void OnSendKcp(byte[] data, int length)
         {
-            Send(data, length);
+            if (IsConnected && IsKcp)
+            {
+                int ret = Send(data, length);
+                mService.Debug(ret.ToString());
+            }
         }
 
         private void UpdateKcp()
         {
-            if(mKCP!=null)
+            if (mKCP != null)
             {
                 uint time = current;
                 if (time >= mNextUpdateTime)
@@ -206,6 +212,7 @@ namespace Network
                     mKCP.Update(time);
                     mNextUpdateTime = mKCP.Check(time);
                 }
+
             }
         }
 
@@ -215,14 +222,13 @@ namespace Network
             {
                 mKCP.Input(data);
 
-                int size = mKCP.PeekSize();
-                while (size > 0)
+                for(int size = mKCP.PeekSize(); size > 0; size = mKCP.PeekSize())
                 {
                     byte[] buffer = new byte[size];
                     if (mKCP.Recv(buffer) > 0)
                     {
                         MessageBuffer message = new MessageBuffer(buffer);
-                        if (onMessage !=null && message.IsValid())
+                        if (onMessage != null && message.IsValid())
                         {
                             onMessage(message);
                         }

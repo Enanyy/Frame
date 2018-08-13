@@ -182,6 +182,8 @@ namespace Network
 
                 mDebugMessageList.Clear();
             }
+
+           
         }
 
         void OnReceive(MessageBuffer message)
