@@ -26,7 +26,7 @@ namespace Network
                 mClientDic[id].Disconnect();
             }
 
-            Client c = new Client(kcp);
+            Client c = new Client();
 
             c.onConnect += onConnect;
             c.onDisconnect += onDisconnect;
@@ -34,7 +34,7 @@ namespace Network
 
             c.onMessage += OnMessage;
 
-            c.Connect(ip, tcpPort, udpPort);
+            c.Connect(ip, tcpPort, udpPort, kcp);
 
             mClientDic.Add(id, c);
         }

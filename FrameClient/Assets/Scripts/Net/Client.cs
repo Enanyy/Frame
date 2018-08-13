@@ -56,6 +56,7 @@ namespace Network
 
         private TcpService mTcp;
         private UdpService mUdp;
+        private KcpService mKcp;
 
         private string mIP;
         private int mTCPPort;
@@ -64,15 +65,13 @@ namespace Network
         private int mAcceptSock = 0;
         public int acceptSock { get { return mAcceptSock; } }
 
-        private bool mIsKcp = false;
-        public Client(bool kcp)
+      
+        public Client()
         {
-            mIsKcp = kcp;
         }
 
-        public void Connect(string ip, int tcpPort, int udpPort)
+        public void Connect(string ip, int tcpPort, int udpPort, bool kcp)
         {
-
             if (IsConnected) return;
 
             mTcp = new TcpService(this);
@@ -94,6 +93,11 @@ namespace Network
             mTcp.onMessage += OnReceive;
       
             mTcp.Connect(mIP, mTCPPort);
+
+            if(kcp == false)
+            {
+                mUdp = new UdpService(this);
+            }
           
         }
 
@@ -101,14 +105,25 @@ namespace Network
         {
             mAcceptSock = sock;
 
-            mUdp = new UdpService(this,sock, mIsKcp);
+            if (mUdp != null)
+            {
+                mUdp.onConnect += OnConnect;
+                mUdp.onDisconnet += OnDisconnect;
+                mUdp.onException += onException;
+                mUdp.onMessage += OnReceive;
 
-            mUdp.onConnect += OnConnect;
-            mUdp.onDisconnet += OnDisconnect;
-            mUdp.onException += onException;
-            mUdp.onMessage += OnReceive;
-            
-            mUdp.Connect(mIP, mUDPPort);
+                mUdp.Connect(mIP, mUDPPort);
+            }
+            else
+            {
+                mKcp = new KcpService(this, (uint)mAcceptSock);
+                mKcp.onConnect += OnConnect;
+                mKcp.onDisconnet += OnDisconnect;
+                mKcp.onException += onException;
+                mKcp.onMessage += OnReceive;
+
+                mKcp.Connect(mIP, mUDPPort);
+            }
 
             byte[] buffer = BitConverter.GetBytes(sock);
             SendUdp(new MessageBuffer(buffer));
@@ -209,16 +224,26 @@ namespace Network
             {
                 mUdp.Close();
             }
-           
+            if(mKcp!=null)
+            {
+                mKcp.Close();
+            }
         }
 
         public void SendUdp(MessageBuffer msg)
         {
-            if(msg == null || mUdp == null)
+            if(msg == null)
             {
                 return;
             }
-            mUdp.Send(msg);
+            if (mKcp != null)
+            {
+                mKcp.Send(msg);
+            }
+            else if (mUdp != null)
+            {
+                mUdp.Send(msg);
+            }
         }
 
         public void SendTcp(MessageBuffer msg)

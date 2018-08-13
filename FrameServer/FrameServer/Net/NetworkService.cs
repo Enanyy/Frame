@@ -57,21 +57,32 @@ namespace Network
 
         private TcpService mTcp;
         private UdpService mUdp;
+        private KcpService mKcp;
 
         public TcpService tcp { get { return mTcp; } }
         public UdpService udp { get { return mUdp; } }
+        public KcpService kcp { get { return mKcp; } }
 
         public NetworkService(int tcp, int udp, bool kcp)
         {
             mTcp = new TcpService(this, tcp);
-            mUdp = new UdpService(this, udp, kcp);
+            if (kcp)
+            {
+                mKcp = new KcpService(this, udp);
+            }
+            else
+            {
+                mUdp = new UdpService(this, udp);
+            }
         }
 
         public bool IsActive
         {
             get
             {
-                return mTcp.IsActive && mUdp.IsActive;
+                return mTcp.IsActive 
+                    && ((mUdp !=null && mUdp.IsActive)
+                        ||(mKcp!=null && mKcp.IsActive));
             }
         }
 
@@ -81,12 +92,20 @@ namespace Network
             try
             {
                 mTcp.Listen();
-                mUdp.Listen();
-
                 mTcp.onReceive += OnReceive;
-                mUdp.onReceive += OnReceive;
                 mTcp.onConnect += OnTcpConnect;
-                mUdp.onConnect += OnUdpConnect;
+
+                if (mUdp != null)
+                {
+                    mUdp.Listen();
+                    mUdp.onReceive += OnReceive;
+                    mUdp.onConnect += OnUdpConnect;
+                }
+                else if(mKcp !=null)
+                {
+                    mKcp.Listen();
+                    mKcp.onConnect += OnUdpConnect;
+                }
 
                 onStart();
             }
@@ -226,23 +245,6 @@ namespace Network
             }
         }
 
-        public void SendUdp(MessageBuffer msg, Session c)
-        {
-            if (c != null && c.udpAdress != null)
-            {
-                mUdp.Send(new MessageInfo(msg, c));
-            }
-        }
-
-        public void SendTcp(MessageBuffer msg, Session c)
-        {
-            if (c != null && c.socket != null && c.socket.Connected)
-            {
-                mTcp.Send(new MessageInfo(msg, c));
-            }
-        }
-
-
         public void Close()
         {
             mTcp.Close();
@@ -295,20 +297,5 @@ namespace Network
                 return ex.Message;
             }
         }
-
-        #region KCP
-
-        public void UpdateKcp()
-        {
-            lock (mSessionList)
-            {
-                for (int i = 0; i < mSessionList.Count; ++i)
-                {
-                    mSessionList[i].Update();
-                }
-            }
-        }
-
-        #endregion
     }
 }

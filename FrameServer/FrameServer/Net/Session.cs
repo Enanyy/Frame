@@ -51,7 +51,7 @@ namespace Network
 
             mActiveThread.Start();
 
-            if (mService.udp.IsKcp)
+            if (mService.kcp!=null)
             {
                 mKCP = new KCP((uint)id, OnSendKcp);
                 mKCP.NoDelay(1, 10, 2, 1);
@@ -103,13 +103,13 @@ namespace Network
         {
             if (mService != null)
             {
-                if (mService.udp.IsKcp)
+                if (mService.kcp!=null)
                 {
                     SendKcp(message);
                 }
-                else
+                else if(mService.udp!=null)
                 {
-                    mService.SendUdp(message, this);
+                    mService.udp.Send(new MessageInfo( message, this));
                 }
             }
         }
@@ -117,9 +117,9 @@ namespace Network
        
         public void SendTcp(MessageBuffer message) 
         {
-            if(mService!=null)
+            if(mService!=null && mService.tcp !=null)
             {
-                mService.SendTcp(message, this);
+                mService.tcp.Send(new MessageInfo(message, this));
             }
         }
 
@@ -147,7 +147,7 @@ namespace Network
             else
             {
                 mPingWatch = Stopwatch.StartNew();
-                mService.SendUdp(new MessageBuffer(new byte[] { NetworkService.pingByte }), this);
+                mService.udp.Send(new MessageInfo( new MessageBuffer(new byte[] { NetworkService.pingByte }), this));
             }
         }
 
@@ -169,28 +169,26 @@ namespace Network
             {
                 return;
             }
-            if (mService == null || mService.udp == null || mService.udp.IsActive == false)
+            if (mService == null || mService.kcp == null || mService.kcp.IsActive == false)
             {
                 return;
             }
 
-           
-                uint time = current;
-                if (time >= mNextUpdateTime)
-                {
-                    mKCP.Update(time);
-                    mNextUpdateTime = mKCP.Check(time);
-                }
-            
+            uint time = current;
+            if (time >= mNextUpdateTime)
+            {
+                mKCP.Update(time);
+                mNextUpdateTime = mKCP.Check(time);
+            }
         }
 
         private void OnSendKcp(byte[] data, int length)
         {
             try
             {
-                if (mService != null && mService.udp != null & mService.udp.IsActive)
+                if (mService != null && mService.kcp != null & mService.kcp.IsActive)
                 {
-                    mService.udp.Send(data, length, udpAdress);
+                    mService.kcp.Send(data, length, udpAdress);
                 }
             }
             catch (Exception e)
