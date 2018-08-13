@@ -143,6 +143,12 @@ namespace PBMessage
       [global::ProtoBuf.ProtoEnum(Name=@"MinValue", Value=0)]
       MinValue = 0,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"GM_ACCEPT_SC", Value=98)]
+      GM_ACCEPT_SC = 98,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"GM_ACCEPT_CS", Value=99)]
+      GM_ACCEPT_CS = 99,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"GM_CONNECT_SC", Value=100)]
       GM_CONNECT_SC = 100,
             

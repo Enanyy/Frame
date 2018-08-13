@@ -131,8 +131,7 @@ namespace Network
                             continue;
                         }
 
-                        byte[] headbuffer = new byte[MessageBuffer.MESSAGE_HEAD_SIZE];
-                        int receiveSize = c.socket.Receive(headbuffer, MessageBuffer.MESSAGE_HEAD_SIZE, SocketFlags.None);
+                        int receiveSize = c.socket.Receive(MessageBuffer.head, MessageBuffer.MESSAGE_HEAD_SIZE, SocketFlags.None);
                         if (receiveSize == 0)
                         {
                             continue;
@@ -142,18 +141,16 @@ namespace Network
                         {
                             continue;
                         }
-                        int messageId = BitConverter.ToInt32(headbuffer, MessageBuffer.MESSAGE_ID_OFFSET);
-                        int bodySize = BitConverter.ToInt32(headbuffer, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET);
+                        int messageId = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_ID_OFFSET);
+                        int bodySize = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET);
 
-                        if (MessageBuffer.IsValid(headbuffer) == false)
+                        if (MessageBuffer.IsValid(MessageBuffer.head) == false)
                         {
                             continue;
                         }
 
-                        Console.WriteLine("recv from tcp:" + messageId + " body size:" + bodySize);
-
                         byte[] messageBuffer = new byte[MessageBuffer.MESSAGE_HEAD_SIZE + bodySize];
-                        Array.Copy(headbuffer, 0, messageBuffer, 0, headbuffer.Length);
+                        Array.Copy(MessageBuffer.head, 0, messageBuffer, 0, MessageBuffer.head.Length);
 
                         if (bodySize > 0)
                         {

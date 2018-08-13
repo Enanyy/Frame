@@ -22,21 +22,21 @@ namespace Network
         public static byte pingByte = byte.MaxValue;
 
         public event OnStartHandler onStart;
-        public event OnConnectHandler onConnect;
+        public event OnConnectHandler onAccept;
+        //public event OnConnectHandler onConnect;
         public event OnDisconnectHandler onDisconnect;
         public event OnMessageHandler onMessage;
         public event OnExceptionHandler onException;
         public event OnPingHandler onPing;
         public event OnDebugHandler onDebug;
 
-
-
         int numberOfClient = 1;
 
+        private List<Session> mAcceptList = new List<Session>();
+        //private List<Session> mConnectedList = new List<Session>();
         private List<Session> mDisconnectList = new List<Session>();
-        private List<Session> mConnectedList = new List<Session>();
-        private List<Session> mSessionList = new List<Session>();
 
+        private List<Session> mSessionList = new List<Session>();
         private List<Session> mTmpSessionList = new List<Session>();
         public List<Session> sessions
         {
@@ -93,18 +93,18 @@ namespace Network
             {
                 mTcp.Listen();
                 mTcp.onReceive += OnReceive;
-                mTcp.onConnect += OnTcpConnect;
+                mTcp.onConnect += OnAccept;
 
                 if (mUdp != null)
                 {
                     mUdp.Listen();
                     mUdp.onReceive += OnReceive;
-                    mUdp.onConnect += OnUdpConnect;
+                   // mUdp.onConnect += OnConnect;
                 }
                 else if(mKcp !=null)
                 {
                     mKcp.Listen();
-                    mKcp.onConnect += OnUdpConnect;
+                    //mKcp.onConnect += OnConnect;
                 }
 
                 onStart();
@@ -171,6 +171,15 @@ namespace Network
                 }
             }
 
+            lock(mAcceptList)
+            {
+                while (mAcceptList.Count > 0)
+                {
+                    onAccept(mAcceptList[0]);
+                    mAcceptList.RemoveAt(0);
+                }
+            }
+            /*
             lock (mConnectedList)
             {
                 while (mConnectedList.Count > 0)
@@ -179,7 +188,7 @@ namespace Network
                     mConnectedList.RemoveAt(0);
                 }
             }
-
+            */
             lock (mDisconnectList)
             {
                 while (mDisconnectList.Count > 0)
@@ -213,24 +222,30 @@ namespace Network
         }
 
 
-        void OnTcpConnect(Socket s)
+        void OnAccept(Socket s)
         {
             Session c = new Session(numberOfClient++, s, this);
             lock (mSessionList)
             {
                 mSessionList.Add(c);
             }
-            c.SendAcceptPoll();
+
+            lock(mAcceptList)
+            {
+                mAcceptList.Add(c);
+            }
+           // c.SendAcceptPoll();
         }
 
-        void OnUdpConnect(Session c)
+        /*
+        public void OnConnect(Session c)
         {
             lock (mConnectedList)
             {
                 mConnectedList.Add(c);
             }
         }
-
+       */
 
         public void RemoveSession(Session c)
         {

@@ -18,10 +18,17 @@ namespace Network
         public static int MESSAGE_MAX_VALUE = 1000;
         public static int MESSAGE_MIN_VALUE = 0;
 
+        //定义一个静态的包头
+        public static byte[] head = new byte[MESSAGE_HEAD_SIZE];
+
         public byte[] buffer{get{return mBuffer;}}
 
         public int size{get{return mBuffer.Length;}}
 
+        public MessageBuffer(int length)
+        {
+            mBuffer = new byte[length];
+        }
 
         public MessageBuffer(byte[] data)
         {

@@ -4,6 +4,8 @@ enum MessageID
 {
 		MinValue = 0;
 
+		GM_ACCEPT_SC = 98;
+		GM_ACCEPT_CS = 99;
         GM_CONNECT_SC = 100;
         GM_CONNECT_BC = 101;
 		GM_DISCONNECT_BC = 102;

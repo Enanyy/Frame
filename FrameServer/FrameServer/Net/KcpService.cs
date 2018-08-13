@@ -74,38 +74,22 @@ namespace Network
                     byte[] data = Receive(ref ip);
 
                     Session c = mService.GetSession(ip);
-
-                    if (data.Length == 4 || data.Length == 28)
-                    {
-                        int id = BitConverter.ToInt32(data, 0);
-
-                        c = mService.GetSession(id);
-
-                        if (c != null && (c.udpAdress == null || c.udpAdress.Equals(id) == false))
-                        {
-                            c.udpAdress = ip;
-                            if (onConnect != null)
-                            {
-                                onConnect(c);
-                            }
-                        }
-                    }
-
+                  
                     if (c == null)
                     {
-                        var buffer = new MessageBuffer(data);
-                        if (buffer.IsValid())
+                        var sessions = mService.sessions;//一个临时的队列
+                        for (int i = 0; i < sessions.Count; ++i)
                         {
-                            if (c == null || c.id != buffer.extra())
+                            if (sessions[i] == null)
                             {
-                                c = mService.GetSession(buffer.extra());
+                                continue;
                             }
+                            sessions[i].OnReceiveKcp(data, ip);
                         }
                     }
-
-                    if (c != null)
-                    {
-                        c.OnReceiveKcp(data);
+                    else
+                    {                    
+                        c.OnReceiveKcp(data, ip);
                     }
 
                     Thread.Sleep(1);
@@ -113,7 +97,7 @@ namespace Network
                 }
                 catch (SocketException e)
                 {
-                    mService.Debug(e.Message);
+                    //mService.Debug(e.Message);
                     continue;
                 }
                 catch (Exception e)

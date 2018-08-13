@@ -159,8 +159,11 @@ namespace Network
         {
             if (mKCP != null)
             {
-                mKCP.Send(message.buffer);
-                mNextUpdateTime = 0;//可以马上更新
+                lock (mKCP)
+                {
+                    mKCP.Send(message.buffer);
+                    mNextUpdateTime = 0;//可以马上更新
+                }
             }
         }
         public void UpdateKcp()
@@ -186,37 +189,45 @@ namespace Network
         {
             try
             {
-                if (mService != null && mService.kcp != null & mService.kcp.IsActive)
+                if (udpAdress!=null && mService != null && mService.kcp != null & mService.kcp.IsActive)
                 {
                     mService.kcp.Send(data, length, udpAdress);
                 }
             }
             catch (Exception e)
             {
-                Disconnect();
+                
             }
         }
 
-        public void OnReceiveKcp(byte[] data)
+        public void OnReceiveKcp(byte[] data, IPEndPoint ip)
         {
-            if (mKCP != null)
+            if (mKCP == null)
+            {
+                return;
+            }
+            lock (mKCP)
             {
                 mKCP.Input(data);
 
-                for(int size = mKCP.PeekSize(); size > 0;  size = mKCP.PeekSize())
+                for (int size = mKCP.PeekSize(); size > 0; size = mKCP.PeekSize())
                 {
-                    byte[] buffer = new byte[size];
-                    if (mKCP.Recv(buffer) > 0)
+                    MessageBuffer message = new MessageBuffer(size);
+ 
+                    if (mKCP.Recv(message.buffer) > 0)
                     {
-                        MessageBuffer message = new MessageBuffer(buffer);
-                        if (message.IsValid())
+                        if (message.IsValid() && message.extra() == id)
                         {
+                            if (udpAdress == null || udpAdress.Equals(ip) == false)
+                            {
+                                udpAdress = ip;
+                            }
                             mService.OnReceive(new MessageInfo(message, this));
                         }
                     }
                 }
-
             }
+
         }
         #endregion
     }

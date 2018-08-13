@@ -39,16 +39,9 @@ namespace Network
         {
             get
             {
-                if(mTcp!=null)
+                if (mTcp != null)
                 {
-                    if(mUdp!=null)
-                    {
-                        return mTcp.IsConnected && mUdp.IsConnected;
-                    }
-                    else
-                    {
-                        return mTcp.IsConnected;
-                    }
+                    return mTcp.IsConnected;
                 }
                 return false;
             }
@@ -80,11 +73,8 @@ namespace Network
             mTCPPort = tcpPort;
             mUDPPort = udpPort;
 
-            if (mUDPPort != 0)
-            {
-                mTcp.onAcceptPoll += OnAcceptPoll;
-            }
-            else
+
+            if (mUDPPort == 0)
             {
                 mTcp.onConnect += OnConnect;
             }
@@ -94,14 +84,14 @@ namespace Network
       
             mTcp.Connect(mIP, mTCPPort);
 
-            if(kcp == false)
+            if(mUDPPort!= 0 && kcp == false)
             {
                 mUdp = new UdpService(this);
             }
           
         }
 
-        void OnAcceptPoll(int sock)
+        public void OnAccept(int sock)
         {
             mAcceptSock = sock;
 
@@ -124,9 +114,7 @@ namespace Network
 
                 mKcp.Connect(mIP, mUDPPort);
             }
-
-            byte[] buffer = BitConverter.GetBytes(sock);
-            SendUdp(new MessageBuffer(buffer));
+           
         }
 
  

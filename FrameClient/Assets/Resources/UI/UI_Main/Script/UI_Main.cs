@@ -56,7 +56,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         mPlayer.gameObject.SetActive(false);
         mFrame.gameObject.SetActive(false);
         mItem.gameObject.SetActive(false);
-        transform.Find("buttons").gameObject.SetActive(false);
+      
 
         RegisterReceiver();
     }
@@ -123,7 +123,6 @@ public class UI_Main : BaseWindow, IReceiverHandler
         if(mFrame)
         {
             mFrame.gameObject.SetActive(true);
-            transform.Find("buttons").gameObject.SetActive(true);
         }
     }
 
@@ -258,35 +257,6 @@ public class UI_Main : BaseWindow, IReceiverHandler
             ReleaseSkill(3);
         };
 
-
-        Transform scaleWindow = transform.Find("buttons/ScaleWindow");
-        UIEventListener.Get(scaleWindow.gameObject).onClick = (go) =>
-        {
-            WindowManager.GetSingleton().Open<UI_ScaleWindow>();
-        };
-
-        Transform fadeWindow = transform.Find("buttons/FadeWindow");
-        UIEventListener.Get(fadeWindow.gameObject).onClick = (go) =>
-        {
-            WindowManager.GetSingleton().Open<UI_FadeWindow>();
-        };
-        Transform moveWindow = transform.Find("buttons/MoveWindow");
-        UIEventListener.Get(moveWindow.gameObject).onClick = (go) =>
-        {
-            WindowManager.GetSingleton().Open<UI_MoveWindow>();
-        };
-
-        Transform popWindow = transform.Find("buttons/PopWindow");
-        UIEventListener.Get(popWindow.gameObject).onClick = (go) =>
-        {
-            WindowManager.GetSingleton().Open<UI_PopWindow>();
-        };
-        Transform dialog = transform.Find("buttons/Dialog");
-
-        UIEventListener.Get(dialog.gameObject).onClick = (go) =>
-        {
-            WindowManager.GetSingleton().Open<UI_Dialog>();
-        };
     }
 
 

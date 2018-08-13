@@ -140,7 +140,6 @@ namespace Network
 
                     if (data.Length > 0)
                     {
-
                         if (onMessage != null && MessageBuffer.IsValid(data))
                         {
                             onMessage(new MessageBuffer(data));

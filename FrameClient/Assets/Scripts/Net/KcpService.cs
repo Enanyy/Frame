@@ -77,10 +77,15 @@ namespace Network
             {
                 return;
             }
-
-            mKCP.Send(message.buffer);
-            mNextUpdateTime = 0;
-
+            if(mKCP == null)
+            {
+                return;
+            }
+            lock (mKCP)
+            {
+                mKCP.Send(message.buffer);
+                mNextUpdateTime = 0;
+            }
         }
 
 
@@ -157,7 +162,6 @@ namespace Network
             if (IsConnected)
             {
                 int ret = Send(data, length);
-                mService.Debug(ret.ToString());
             }
         }
 
@@ -177,16 +181,19 @@ namespace Network
 
         private void OnReceiveKcp(byte[] data)
         {
-            if (mKCP != null)
+            if (mKCP == null)
+            {
+                return;
+            }
+            lock (mKCP)
             {
                 mKCP.Input(data);
 
                 for (int size = mKCP.PeekSize(); size > 0; size = mKCP.PeekSize())
                 {
-                    byte[] buffer = new byte[size];
-                    if (mKCP.Recv(buffer) > 0)
+                    MessageBuffer message = new MessageBuffer(size);
+                    if (mKCP.Recv(message.buffer) > 0)
                     {
-                        MessageBuffer message = new MessageBuffer(buffer);
                         if (onMessage != null && message.IsValid())
                         {
                             onMessage(message);
@@ -194,6 +201,7 @@ namespace Network
                     }
                 }
             }
+
         }
         #endregion
     }

@@ -72,7 +72,8 @@ namespace FrameServer
             Debug.ENABLE_ERROR = true;
 
             mService.onStart += OnStart;
-            mService.onConnect += OnConnect;
+            mService.onAccept += OnAccept;
+           // mService.onConnect += OnConnect;
             mService.onMessage += OnMessage;
             mService.onDisconnect += OnDisconnect;
             mService.onDebug += OnDebug;
@@ -115,7 +116,7 @@ namespace FrameServer
         {
             mService.Update();
 
-            if(mBegin && mUserList.Count > 0)
+            if(mBegin)
             {
                 mFrameTime += deltaTime;
 
@@ -134,6 +135,17 @@ namespace FrameServer
         {
             Debug.Log(string.Format("Server start success,mode={0} ip={1} tcp port={2} udp port={3}",mMode.ToString(), NetworkService.GetLocalIP(),TCP_PORT, UDP_PORT),ConsoleColor.Green);
            
+        }
+
+        private void OnAccept(Session c)
+        {
+            GM_Return sendData = new GM_Return();
+            sendData.id = c.id;
+
+            byte[] data = ProtoTransfer.SerializeProtoBuf(sendData);
+            MessageBuffer message = new MessageBuffer((int)MessageID.GM_ACCEPT_SC, data, c.id);
+
+            c.SendTcp(message);
         }
 
         private void OnConnect(Session c)
@@ -181,6 +193,15 @@ namespace FrameServer
             MessageID messageId = (MessageID)msg.id();
             switch (messageId)
             {
+                case MessageID.GM_ACCEPT_CS:
+                    {
+                        GM_Request recvData = ProtoTransfer.DeserializeProtoBuf<GM_Request>(msg);
+                        if (recvData.id == client.id)
+                        {
+                            OnConnect(client);
+                        }
+                    }
+                    break;
                 case MessageID.GM_READY_CS:
                     {
                         GM_Ready recvData = ProtoTransfer.DeserializeProtoBuf<GM_Ready>(msg);
@@ -278,7 +299,7 @@ namespace FrameServer
 
                 }
             }
-            /*
+            
             else //断线重连
             {           
                 User user = GetUser(recvData.roleId);
@@ -289,7 +310,9 @@ namespace FrameServer
 
                     user.SendUdp(MessageID.GM_BEGIN_BC, sendData);
 
+                    /*
                     GM_Frame_BC frameData = new GM_Frame_BC();
+                    
                     //给他发送当前帧之前的数据
                     for (long frame = 1; frame < mCurrentFrame - 1; ++frame)
                     {
@@ -310,9 +333,10 @@ namespace FrameServer
                             user.SendUdp(MessageID.GM_FRAME_BC, frameData);
                         }
                     }
+                    */
                 }
             }
-            */
+            
         }
 
         private void BeginGame()
@@ -419,8 +443,9 @@ namespace FrameServer
                 frames[roleId].Add(cmd);
             }
 
+            //当所有玩家都发送了该帧，就可以广播了
             //减去1是因为服务器命令也在当前帧中
-            if (frames.Count - 1 == mUserList.Count)
+            if (frames.Count - 1 >= mUserList.Count)
             {
                 GM_Frame_BC sendData = new GM_Frame_BC();
                 sendData.frame = frame;

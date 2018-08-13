@@ -10,7 +10,6 @@ namespace Network
     {
         private Queue<MessageBuffer> mSendMessageQueue = new Queue<MessageBuffer>();
         private IPEndPoint mServerAdress;
-        //private TcpClient mTCPSocket;
 
         private Client mService;
         private int mPort;
@@ -19,7 +18,6 @@ namespace Network
 
         private Thread mReceiveThread, mSendThread, mActiveThread;
 
-        public event OnAcceptPollHandler onAcceptPoll;
         public event OnConnectHandler onConnect;
         public event OnMessageHandler onMessage;
         public event OnDisconnectHandler onDisconnect;
@@ -30,7 +28,7 @@ namespace Network
             mService = service;
         }
 
-        public bool IsConnected { get { return Active && Connected; } }
+        public bool IsConnected { get { return Client!=null && Active && Connected; } }
 
         public new bool Connect(string ip, int port)
         {
@@ -70,26 +68,7 @@ namespace Network
                     Close();
                     return;
                 }
-
-                while (true)
-                {
-                    //Read accepted ID
-                    NetworkStream s = GetStream();
-
-                    if (s.CanRead)
-                    {
-                        byte[] buff = new byte[4];
-
-                        for (int i = 0; i < buff.Length; i++)
-                            buff[i] = (byte)s.ReadByte();
-
-                        //Send it back
-                        mSock = BitConverter.ToInt32(buff, 0);
-
-                        break;
-                    }
-                }
-
+                
                 mReceiveThread = new Thread(ReceiveThread);
                 mSendThread = new Thread(SendThread);
                 mActiveThread = new Thread(ActiveThread);
@@ -99,11 +78,7 @@ namespace Network
                 mSendThread.Start();
                 mActiveThread.Start();
 
-                if (onAcceptPoll != null)
-                {
-                    onAcceptPoll(mSock);
-                }
-                else if (onConnect != null)
+                if (onConnect != null)
                 {
                     onConnect();
                 }
@@ -192,8 +167,8 @@ namespace Network
             {
                 try
                 {
-                    byte[] headbuffer = new byte[MessageBuffer.MESSAGE_HEAD_SIZE];
-                    int receiveSize = Client.Receive(headbuffer, MessageBuffer.MESSAGE_HEAD_SIZE, SocketFlags.None);
+                  
+                    int receiveSize = Client.Receive(MessageBuffer.head, MessageBuffer.MESSAGE_HEAD_SIZE, SocketFlags.None);
                     if (receiveSize == 0)
                     {
                         return;
@@ -203,16 +178,16 @@ namespace Network
                     {
                         return;
                     }
-                    int messageId = BitConverter.ToInt32(headbuffer, MessageBuffer.MESSAGE_ID_OFFSET);
-                    int bodySize = BitConverter.ToInt32(headbuffer, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET);
+                    int messageId = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_ID_OFFSET);
+                    int bodySize = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET);
 
-                    if (MessageBuffer.IsValid(headbuffer) == false)
+                    if (MessageBuffer.IsValid(MessageBuffer.head) == false)
                     {
                         return;
                     }
 
                     byte[] messageBuffer = new byte[MessageBuffer.MESSAGE_HEAD_SIZE + bodySize];
-                    Array.Copy(headbuffer, 0, messageBuffer, 0, headbuffer.Length);
+                    Array.Copy(MessageBuffer.head, 0, messageBuffer, 0, MessageBuffer.head.Length);
 
                     if (bodySize > 0)
                     {

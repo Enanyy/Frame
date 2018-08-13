@@ -92,48 +92,27 @@ namespace Network
                     {
                         Session c = mService.GetSession(ip);
 
-                        //Pinged
-                        if (data.Length == 1 && data[0] == NetworkService.pingByte)
-                        {
-                            if (c != null && c.Pinging)
-                            {
-                                c.Ping();
-                            }
-                            else
-                            {
-                                Send(data, 1, ip);
-                            }
-                        }
-                        else
-                        {
-                            if (data.Length == 4)
-                            {
-                                int id = BitConverter.ToInt32(data, 0);
-                                c = mService.GetSession(id);
+                        var buffer = new MessageBuffer(data);
 
-                                if (c != null && (c.udpAdress == null || c.udpAdress.Equals(id) == false))
+                        if (buffer.IsValid())
+                        {
+                            if (c == null || c.id != buffer.extra())
+                            {
+                                c = mService.GetSession(buffer.extra());
+                            }
+
+                            if (c != null)
+                            {
+                                if (c.udpAdress == null || c.udpAdress.Equals(ip) == false)
                                 {
                                     c.udpAdress = ip;
-                                    if (onConnect != null)
-                                    {
-                                        onConnect(c);
-                                    }
                                 }
-                            }
 
-                            var buffer = new MessageBuffer(data);
-                            if (buffer.IsValid())
-                            {
-                                if (c == null || c.id != buffer.extra())
-                                {
-                                    c = mService.GetSession(buffer.extra());
-                                }
-                                if (onReceive != null && c != null)
+                                if (onReceive != null)
                                 {
                                     onReceive(new MessageInfo(buffer, c));
                                 }
                             }
-
                         }
 
                     }
