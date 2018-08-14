@@ -18,7 +18,7 @@ namespace Network
 
         private bool mListening = false;
 
-        public bool IsActive { get { return Client.IsBound && mListening; } }
+        public bool IsActive { get { return base.Client!=null&& base.Client.IsBound && mListening; } }
 
         public event OnReceiveHandler onReceive;
 

@@ -9,12 +9,12 @@ namespace Network
 {
     public class Session
     {
-        public int id;
+        private int mID;
+        public int id { get { return mID; } }
         public IPEndPoint tcpAdress, udpAdress;
 
         private NetworkService mService;
         private Socket mSocket;
-        private Stopwatch mPingWatch;
         private Thread mActiveThread;
 
         public Socket socket { get { return mSocket; } }
@@ -32,17 +32,12 @@ namespace Network
             }
         }
 
-        public bool Pinging
-        {
-            get
-            {
-                return mPingWatch != null;
-            }
-        }
+  
+        
 
-        public Session(int clientId, Socket sock, NetworkService serv)
+        public Session(int id, Socket sock, NetworkService serv)
         {
-            id = clientId;
+            mID = id;
             mService = serv;
             mSocket = sock;
 
@@ -56,11 +51,6 @@ namespace Network
                 mKCP = new KCP((uint)id, OnSendKcp);
                 mKCP.NoDelay(1, 10, 2, 1);
             }
-        }
-
-        public void SendAcceptPoll()
-        {
-            mSocket.Send(BitConverter.GetBytes(id));
         }
 
         void ActiveThread()
@@ -137,20 +127,7 @@ namespace Network
 
         }
 
-        public void Ping()
-        {
-            if (Pinging)
-            {
-                mService.PingResult(this, mPingWatch.Elapsed.Milliseconds);
-                mPingWatch = null;
-            }
-            else
-            {
-                mPingWatch = Stopwatch.StartNew();
-                mService.udp.Send(new MessageInfo( new MessageBuffer(new byte[] { NetworkService.pingByte }), this));
-            }
-        }
-
+  
 
 
 
