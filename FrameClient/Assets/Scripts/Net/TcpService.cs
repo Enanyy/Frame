@@ -9,9 +9,9 @@ namespace Network
     public class TcpService : TcpClient
     {
         private Queue<MessageBuffer> mSendMessageQueue = new Queue<MessageBuffer>();
-        private IPEndPoint mServerAdress;
 
         private Client mService;
+        private IPAddress mIP;
         private int mPort;
 
         private int mSock;
@@ -28,8 +28,9 @@ namespace Network
             mService = service;
         }
 
-        public bool IsConnected { get { return Client!=null && Active && Connected; } }
+        public bool IsConnected { get { return Client!=null && Connected; } }
 
+        private int mConnectTimes = 0;
         public new bool Connect(string ip, int port)
         {
             if (IsConnected)
@@ -37,10 +38,11 @@ namespace Network
                 return true;
             }
 
-            mServerAdress = new IPEndPoint(IPAddress.Parse(ip), port);
+            mIP = IPAddress.Parse(ip);
+            mPort = port;
+           
 
-            Thread connect = new Thread(ConnectThread);
-            connect.Start();
+            BeginConnect(mIP, mPort, ConnectResult, this);
 
             return true;
         }
@@ -57,11 +59,28 @@ namespace Network
             }
         }
 
-        void ConnectThread()
+        void ConnectResult(IAsyncResult result)
         {
             try
             {
-                base.Connect(mServerAdress);
+                mConnectTimes += 1;
+
+                if (result.IsCompleted == false)
+                {
+                    if(mConnectTimes < 5)
+                    {
+                        BeginConnect(mIP, mPort, ConnectResult, this);
+                    }
+                    else
+                    {
+                        EndConnect(result);
+                        Close();
+
+                        return;
+                    }
+                }
+
+                EndConnect(result);
 
                 if (IsConnected == false)
                 {
