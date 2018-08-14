@@ -290,8 +290,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
             return;
         }
 
-        CMD_ReleaseSkill data = new CMD_ReleaseSkill();
-
+        CMD_ReleaseSkill data = SharedValue<CMD_ReleaseSkill>.sData;
         data.roleId = PlayerManager.GetSingleton().mRoleId;
         data.skillId = skillid;
         data.mouseposition = ProtoTransfer.Get(PlayerManager.GetSingleton().mousePosition);

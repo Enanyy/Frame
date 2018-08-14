@@ -155,7 +155,7 @@ public class PlayerManager : SingletonMono<PlayerManager>
 
                     SetClickPosition(1, position);
 
-                    CMD_MoveToPoint data = new CMD_MoveToPoint();
+                    CMD_MoveToPoint data = SharedValue<CMD_MoveToPoint>.sData;
                     data.roleId = mRoleId;
                     data.destination = ProtoTransfer.Get(position);
                     data.position = ProtoTransfer.Get(mPlayerCharacterSelf.position);

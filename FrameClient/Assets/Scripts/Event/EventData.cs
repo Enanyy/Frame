@@ -7,22 +7,8 @@ where T : new() 限制类型参数T必须有一个缺省的构造函数
 where T : NameOfClass 限制类型参数T必须继承自某个类或实现某个接口。
 以上这些限定可以组合使用，比如： public class Point where T : class, IComparable, new()
 */
-public abstract class IEventData<T> where T:class,new()
+public abstract class IEventData<T>:SharedValue<T> where T:class,new()
 {
-    private static T mData;
-    /// <summary>
-    /// 使用静态变量，避免不停地new
-    /// </summary>
-    public static T sData {
-        get
-        {
-            if(mData==null)
-            {
-                mData = new T();
-            }
-            return mData;
-        }
-    }
     public virtual void Clear()
     {
 
