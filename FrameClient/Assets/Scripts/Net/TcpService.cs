@@ -171,36 +171,37 @@ namespace Network
                     int receiveSize = Client.Receive(MessageBuffer.head, MessageBuffer.MESSAGE_HEAD_SIZE, SocketFlags.None);
                     if (receiveSize == 0)
                     {
-                        return;
+                        continue;
                     }
 
                     if (receiveSize != MessageBuffer.MESSAGE_HEAD_SIZE)
                     {
-                        return;
+                        continue;
                     }
-                    int messageId = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_ID_OFFSET);
+                  
                     int bodySize = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET);
 
                     if (MessageBuffer.IsValid(MessageBuffer.head) == false)
                     {
-                        return;
+                        continue;
                     }
 
-                    byte[] messageBuffer = new byte[MessageBuffer.MESSAGE_HEAD_SIZE + bodySize];
-                    Array.Copy(MessageBuffer.head, 0, messageBuffer, 0, MessageBuffer.head.Length);
+                    MessageBuffer message = new MessageBuffer(MessageBuffer.MESSAGE_HEAD_SIZE + bodySize);
+                   
+                    Array.Copy(MessageBuffer.head, 0, message.buffer, 0, MessageBuffer.head.Length);
 
                     if (bodySize > 0)
                     {
-                        int receiveBodySize = Client.Receive(messageBuffer, MessageBuffer.MESSAGE_BODY_OFFSET, bodySize, SocketFlags.None);
+                        int receiveBodySize = Client.Receive(message.buffer, MessageBuffer.MESSAGE_BODY_OFFSET, bodySize, SocketFlags.None);
 
                         if (receiveBodySize != bodySize)
                         {
-                            return;
+                            continue;
                         }
                     }
                     if (onMessage != null)
                     {
-                        onMessage(new MessageBuffer(messageBuffer));
+                        onMessage(message);
                     }
                 }
                 catch (Exception e)

@@ -21,7 +21,6 @@ namespace Network
         public bool IsActive { get { return Client.IsBound && mListening; } }
 
         public event OnReceiveHandler onReceive;
-        public event OnUdpConnectHandler onConnect;
 
 
         public UdpService(NetworkService service, int port) : base(port)

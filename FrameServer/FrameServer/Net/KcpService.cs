@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Network
 {
@@ -18,9 +17,6 @@ namespace Network
         private bool mListening = false;
 
         public bool IsActive { get { return Client.IsBound && mListening; } }
-
-        public event OnUdpConnectHandler onConnect;
-
      
         public KcpService(NetworkService service, int port):base(port)
         {
@@ -77,15 +73,13 @@ namespace Network
                   
                     if (c == null)
                     {
-                        var sessions = mService.sessions;//一个临时的队列
-                        for (int i = 0; i < sessions.Count; ++i)
+                        var sessions = mService.sessions;
+
+                        for(int i = 0; i < sessions.Count; ++i)
                         {
-                            if (sessions[i] == null)
-                            {
-                                continue;
-                            }
                             sessions[i].OnReceiveKcp(data, ip);
                         }
+                       
                     }
                     else
                     {                    
@@ -116,18 +110,17 @@ namespace Network
         {
             while (IsActive)
             {
-                var sessions = mService.sessions;//一个临时的队列
+                var sessions = mService.sessions;
+
                 for (int i = 0; i < sessions.Count; ++i)
                 {
-                    if (sessions[i] == null)
-                    {
-                        continue;
-                    }
                     sessions[i].UpdateKcp();
                 }
 
                 Thread.Sleep(1);
             }
         }
+
+        
     }
 }

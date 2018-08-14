@@ -22,7 +22,7 @@ namespace Network
 
 
         public event OnReceiveHandler onReceive;
-        public event OnTcpConnectHandler onConnect;
+        public event OnAcceptHandler onAccept;
 
         public TcpService(NetworkService service, int port) : base(IPAddress.Any, port)
         {
@@ -94,9 +94,9 @@ namespace Network
                     Socket s = AcceptSocket();
                     if (s != null)
                     {
-                        if (onConnect != null)
+                        if (onAccept != null)
                         {
-                            onConnect(s);
+                            onAccept(s);
                         }
                     }
 
@@ -115,15 +115,14 @@ namespace Network
         {
             while (IsActive)
             {
-                var sessions = mService.sessions;//一个临时的队列
-                for (int i = 0; i < sessions.Count; ++i)
+                var sessions = mService.sessions;
+                for(int i = 0; i < sessions.Count; ++i)
                 {
-                    if (sessions[i] == null)
+                    Session c = sessions[i];
+                    if(c == null)
                     {
                         continue;
                     }
-
-                    var c = sessions[i];
                     try
                     {
                         if (c.IsConnected == false)
@@ -149,12 +148,13 @@ namespace Network
                             continue;
                         }
 
-                        byte[] messageBuffer = new byte[MessageBuffer.MESSAGE_HEAD_SIZE + bodySize];
-                        Array.Copy(MessageBuffer.head, 0, messageBuffer, 0, MessageBuffer.head.Length);
+                        MessageBuffer message = new MessageBuffer(MessageBuffer.MESSAGE_HEAD_SIZE + bodySize);
+
+                        Array.Copy(MessageBuffer.head, 0, message.buffer, 0, MessageBuffer.head.Length);
 
                         if (bodySize > 0)
                         {
-                            int receiveBodySize = c.socket.Receive(messageBuffer, MessageBuffer.MESSAGE_BODY_OFFSET, bodySize, SocketFlags.None);
+                            int receiveBodySize = c.socket.Receive(message.buffer, MessageBuffer.MESSAGE_BODY_OFFSET, bodySize, SocketFlags.None);
 
                             if (receiveBodySize != bodySize)
                             {
@@ -164,7 +164,7 @@ namespace Network
 
                         if (onReceive != null)
                         {
-                            onReceive(new MessageInfo(new MessageBuffer(messageBuffer), c));
+                            onReceive(new MessageInfo(message, c));
                         }
 
                     }
@@ -215,5 +215,7 @@ namespace Network
 
             }
         }
+
+      
     }
 }
