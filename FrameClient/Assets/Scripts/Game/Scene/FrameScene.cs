@@ -311,7 +311,9 @@ public class FrameScene : GameScene, IReceiverHandler
             return;
         }
 
-        GM_Frame sendData = new GM_Frame();
+        GM_Frame sendData = SharedValue<GM_Frame>.sData;
+        sendData.command.Clear();
+
         sendData.roleId = PlayerManager.GetSingleton().mRoleId;
         sendData.frame = mCurrentFrame;
         sendData.frametime = mFrameTime;
@@ -621,7 +623,9 @@ public class FrameScene : GameScene, IReceiverHandler
         {
             //乐观模式马上发送命令
 
-            GM_Frame sendData = new GM_Frame();
+            GM_Frame sendData = SharedValue<GM_Frame>.sData;
+            sendData.command.Clear();
+
             sendData.roleId = PlayerManager.GetSingleton().mRoleId;
             sendData.frame = mCurrentFrame;
             sendData.frametime = mFrameTime;
