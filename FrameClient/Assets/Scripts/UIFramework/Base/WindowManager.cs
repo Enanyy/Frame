@@ -61,7 +61,7 @@ public class WindowManager : MonoBehaviour
     }
 
     static Canvas mCanvas;
-   
+    public static Canvas canvas { get { return mCanvas; } }
 
     public static void SetTouchable(bool touchable)
     {

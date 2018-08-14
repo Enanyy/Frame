@@ -166,11 +166,11 @@ public class UI_Main : BaseWindow, IReceiverHandler
         {
             Vector3 screenPosition = PlayerManager.GetSingleton().mCamera.WorldToScreenPoint(data.position);
 
-            float ratioX = WindowManager.DESIGN_WIDTH *1f / Screen.width;
-            float ratioY = WindowManager.DESIGN_HEIGHT * 1f / Screen.height;
+        
+            float ratio = WindowManager.canvas.transform.localScale.x;
 
-            screenPosition.x -= Screen.width * ratioX * 0.5f ;
-            screenPosition.y -= Screen.height* ratioY * 0.5f;
+            screenPosition.x -= WindowManager.DESIGN_WIDTH * ratio * 0.5f;
+            screenPosition.y -= WindowManager.DESIGN_HEIGHT * ratio * 0.5f;
             screenPosition.z = 0;
 
             screenPosition.y += 60;
