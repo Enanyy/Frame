@@ -11,13 +11,19 @@ public enum Mode
     Optimistic,
 }
 
+public enum Protocol
+{
+    UDP,
+    KCP,
+}
+
 public class GameApplication :SingletonMono<GameApplication> {
 
     public Mode mode = Mode.LockStep;
     public string ip = "127.0.0.1";
     public int tcpPort = 1255;
     public int udpPort = 1337;
-    public bool kcp = false;
+    public Protocol protocol = Protocol.UDP;
 
     void Awake()
 	{

@@ -63,7 +63,7 @@ namespace Network
         {
         }
 
-        public void Connect(string ip, int tcpPort, int udpPort, bool kcp)
+        public void Connect(string ip, int tcpPort, int udpPort)
         {
             if (IsConnected) return;
 
@@ -83,20 +83,15 @@ namespace Network
             mTcp.onMessage += OnReceive;
       
             mTcp.Connect(mIP, mTCPPort);
-
-            if(mUDPPort!= 0 && kcp == false)
-            {
-                mUdp = new UdpService(this);
-            }
-          
         }
 
-        public void OnAccept(int sock)
+        public void OnAccept(int sock,int protocol)
         {
             mAcceptSock = sock;
 
-            if (mUdp != null)
+            if (protocol  == 0)
             {
+                mUdp = new UdpService(this);
                 mUdp.onConnect += OnConnect;
                 mUdp.onDisconnet += OnDisconnect;
                 mUdp.onException += onException;

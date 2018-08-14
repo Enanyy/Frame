@@ -36,14 +36,12 @@ public class EventConnect:IEventData<EventConnect>
     public string ip;
     public int tcpPort;
     public int udpPort;
-    public bool kcp;
 
     public override void Clear()
     {
         ip = "";
         tcpPort = 0;
         udpPort = 0;
-        kcp = false;
     }
 }
 

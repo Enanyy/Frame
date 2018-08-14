@@ -12,9 +12,9 @@ public class UI_Main : BaseWindow, IReceiverHandler
     InputField mIP;
     InputField mTCP;
     InputField mUDP;
-    Toggle mKCP;
     Text mPlayer;
     Text mFrame;
+    Text mProtocol;
 
     Transform mConnect;
     Transform mReady;
@@ -31,18 +31,15 @@ public class UI_Main : BaseWindow, IReceiverHandler
         mIP = transform.Find("ip").GetComponent<InputField>();
         mTCP = transform.Find("tcp").GetComponent<InputField>();
         mUDP = transform.Find("udp").GetComponent<InputField>();
-        mKCP = transform.Find("kcp").GetComponent<Toggle>();
         mPlayer = transform.Find("player").GetComponent<Text>();
         mFrame = transform.Find("frame").GetComponent<Text>();
+        mProtocol = transform.Find("protocol").GetComponent<Text>();
 
 
         mIP.text = GameApplication.GetSingleton().ip;
         mTCP.text = GameApplication.GetSingleton().tcpPort.ToString();
         mUDP.text = GameApplication.GetSingleton().udpPort.ToString();
-        mKCP.isOn = GameApplication.GetSingleton().kcp;
-        mKCP.onValueChanged.AddListener(delegate (bool value) {
-            GameApplication.GetSingleton().kcp = value;
-        });
+       
 
         mConnect = transform.Find("connect");
         mReady = transform.Find("ready");
@@ -55,6 +52,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         mReady.gameObject.SetActive(false);
         mPlayer.gameObject.SetActive(false);
         mFrame.gameObject.SetActive(false);
+        mProtocol.gameObject.SetActive(false);
         mItem.gameObject.SetActive(false);
       
 
@@ -97,10 +95,11 @@ public class UI_Main : BaseWindow, IReceiverHandler
             mIP.gameObject.SetActive(false);
             mTCP.gameObject.SetActive(false);
             mUDP.gameObject.SetActive(false);
-            mKCP.gameObject.SetActive(false);
             mConnect.gameObject.SetActive(false);
             mReady.gameObject.SetActive(true);
             mPlayer.gameObject.SetActive(true);
+            mProtocol.gameObject.SetActive(true);
+            mProtocol.text ="协议:"+ GameApplication.GetSingleton().protocol.ToString();
         }
 
         UpdatePlayerCount();
@@ -281,8 +280,6 @@ public class UI_Main : BaseWindow, IReceiverHandler
         {
             return;
         }
-        EventConnect.sData.kcp = GameApplication.GetSingleton().kcp;
-
         EventDispatch.Dispatch(EventID.Connect_Request, EventConnect.sData);
     }
 

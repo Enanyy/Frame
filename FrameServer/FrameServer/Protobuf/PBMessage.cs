@@ -357,6 +357,30 @@ namespace PBMessage
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"GM_Accept")]
+  public partial class GM_Accept : global::ProtoBuf.IExtensible
+  {
+    public GM_Accept() {}
+    
+    private int _conv;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"conv", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int conv
+    {
+      get { return _conv; }
+      set { _conv = value; }
+    }
+    private int _protocol;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"protocol", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public int protocol
+    {
+      get { return _protocol; }
+      set { _protocol = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"GM_Connect")]
   public partial class GM_Connect : global::ProtoBuf.IExtensible
   {

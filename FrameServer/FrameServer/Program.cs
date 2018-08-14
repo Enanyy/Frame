@@ -24,6 +24,7 @@ namespace FrameServer
         public const int TCP_PORT = 1255;
         public const int UDP_PORT = 1337;
 
+       
 
         public const int FRAME_INTERVAL = 100; //帧时间 毫秒
 
@@ -50,7 +51,14 @@ namespace FrameServer
             Optimistic,
         }
 
+        public enum Protocol
+        {
+            UDP,
+            KCP,
+        }
+
         private Mode mMode = Mode.LockStep;
+        private Protocol mProtocol = Protocol.UDP;
 
         public Program()
         {
@@ -64,16 +72,15 @@ namespace FrameServer
            
             Debug.Log("1. use udp.");
             Debug.Log("2. use kcp.");
-            bool use_kcp = false;
-            use_kcp = Console.ReadLine() == "1" ? false : true;
 
-            mService = new NetworkService(TCP_PORT, UDP_PORT, use_kcp);
+            mProtocol = Console.ReadLine() == "1" ? Protocol.UDP : Protocol.KCP;
+
+            mService = new NetworkService(TCP_PORT, UDP_PORT, mProtocol == Protocol.KCP);
 
             Debug.ENABLE_ERROR = true;
 
             mService.onStart += OnStart;
             mService.onAccept += OnAccept;
-           // mService.onConnect += OnConnect;
             mService.onMessage += OnMessage;
             mService.onDisconnect += OnDisconnect;
             mService.onDebug += OnDebug;
@@ -139,8 +146,9 @@ namespace FrameServer
 
         private void OnAccept(Session c)
         {
-            GM_Return sendData = new GM_Return();
-            sendData.id = c.id;
+            GM_Accept sendData = new GM_Accept();
+            sendData.conv = c.id;
+            sendData.protocol = (int)mProtocol;
 
             byte[] data = ProtoTransfer.SerializeProtoBuf(sendData);
             MessageBuffer message = new MessageBuffer((int)MessageID.GM_ACCEPT_SC, data, c.id);
@@ -195,8 +203,8 @@ namespace FrameServer
             {
                 case MessageID.GM_ACCEPT_CS:
                     {
-                        GM_Request recvData = ProtoTransfer.DeserializeProtoBuf<GM_Request>(msg);
-                        if (recvData.id == client.id)
+                        GM_Accept recvData = ProtoTransfer.DeserializeProtoBuf<GM_Accept>(msg);
+                        if (recvData.conv == client.id)
                         {
                             OnConnect(client);
                         }

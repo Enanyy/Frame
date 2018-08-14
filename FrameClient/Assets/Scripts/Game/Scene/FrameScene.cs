@@ -140,7 +140,7 @@ public class FrameScene : GameScene, IReceiverHandler
         EventDispatch.RegisterReceiver<Command>(EventID.AddCommand, OnAddCommand);
         #endregion
         #region Message
-        MessageDispatch.RegisterReceiver<GM_Return>(MessageID.GM_ACCEPT_SC, OnAccept);
+        MessageDispatch.RegisterReceiver<GM_Accept>(MessageID.GM_ACCEPT_SC, OnAccept);
         MessageDispatch.RegisterReceiver<GM_Connect>(MessageID.GM_CONNECT_SC, OnConnectReturn);
         MessageDispatch.RegisterReceiver<GM_Connect>(MessageID.GM_CONNECT_BC, OnConnectBC);
         MessageDispatch.RegisterReceiver<GM_Disconnect>(MessageID.GM_DISCONNECT_BC, OnDisconnectBC);
@@ -166,7 +166,7 @@ public class FrameScene : GameScene, IReceiverHandler
         EventDispatch.UnRegisterReceiver<Command>(EventID.AddCommand, OnAddCommand);
         #endregion
         #region Message
-        MessageDispatch.UnRegisterReceiver<GM_Return>(MessageID.GM_ACCEPT_SC, OnAccept);
+        MessageDispatch.UnRegisterReceiver<GM_Accept>(MessageID.GM_ACCEPT_SC, OnAccept);
         MessageDispatch.UnRegisterReceiver<GM_Connect>(MessageID.GM_CONNECT_SC, OnConnectReturn);
         MessageDispatch.UnRegisterReceiver<GM_Connect>(MessageID.GM_CONNECT_BC, OnConnectBC);
         MessageDispatch.UnRegisterReceiver<GM_Disconnect>(MessageID.GM_DISCONNECT_BC, OnDisconnectBC);
@@ -186,7 +186,7 @@ public class FrameScene : GameScene, IReceiverHandler
 
     #region Message
 
-    private void OnAccept(GM_Return recvData)
+    private void OnAccept(GM_Accept recvData)
     {
         if(recvData==null)
         {
@@ -196,12 +196,11 @@ public class FrameScene : GameScene, IReceiverHandler
         Client client = ClientService.GetSingleton().GetClient(ClientID.Frame);
         if(client!=null)
         {
-            client.OnAccept(recvData.id);
+            client.OnAccept(recvData.conv,recvData.protocol);
 
-            GM_Request sendData = new GM_Request();
-            sendData.id = recvData.id;
-
-            ClientService.GetSingleton().SendUdp(ClientID.Frame, MessageID.GM_ACCEPT_CS, sendData);
+            GameApplication.GetSingleton().protocol = (Protocol)recvData.protocol;
+            //发回给服务器
+            ClientService.GetSingleton().SendUdp(ClientID.Frame, MessageID.GM_ACCEPT_CS, recvData);
         }
     }
     private void OnConnectReturn(GM_Connect recvData)
@@ -592,7 +591,6 @@ public class FrameScene : GameScene, IReceiverHandler
             data.ip,
             data.tcpPort,
             data.udpPort,
-            data.kcp,
             OnConnectSuccess, 
             OnConnectFail);
     }

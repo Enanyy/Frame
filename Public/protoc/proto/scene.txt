@@ -39,6 +39,12 @@ message GM_Return
 	required int32 id = 1;
 }
 
+message GM_Accept
+{
+	required int32 conv = 1;
+	required int32 protocol = 2; //0.use udp 1.use kcp
+}
+
 message GM_Connect
 {
 	required int32 roleId = 1;
