@@ -28,6 +28,10 @@ namespace Network
 
         public static T DeserializeProtoBuf<T>(byte[] data) where T : class, ProtoBuf.IExtensible
         {
+            if(data ==null)
+            {
+                return null;
+            }
             using (MemoryStream ms = new MemoryStream(data))
             {
                 T t = ProtoBuf.Serializer.Deserialize<T>(ms);
@@ -37,6 +41,11 @@ namespace Network
 
         public static object DeserializeProtoBuf(byte[] data, Type type)
         {
+            if (data == null)
+            {
+                return null;
+            }
+
             using (MemoryStream ms = new MemoryStream(data))
             {
                 return ProtoBuf.Meta.RuntimeTypeModel.Default.Deserialize(ms, null, type);

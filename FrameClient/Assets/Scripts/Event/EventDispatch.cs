@@ -12,8 +12,7 @@ public static class EventDispatch
     }
     public static void UnRegisterReceiver<T>(EventID varEventID, Action<T> action) 
     {
-        int id = (int)varEventID;
-        mDispatcher.UnRegisterReceiver(id, action);
+        mDispatcher.UnRegisterReceiver((int)varEventID, action);
     }
 
     public static void Dispatch<T>(EventID varEventID, T data)

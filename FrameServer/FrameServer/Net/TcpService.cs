@@ -140,14 +140,16 @@ namespace Network
                         {
                             continue;
                         }
-                        int messageId = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_ID_OFFSET);
-                        int bodySize = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET);
-
+                       
                         if (MessageBuffer.IsValid(MessageBuffer.head) == false)
                         {
                             continue;
                         }
-
+                        int bodySize = 0;
+                        if (MessageBuffer.Decode(MessageBuffer.head, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET, ref bodySize) == false)
+                        {
+                            continue;
+                        }
                         MessageBuffer message = new MessageBuffer(MessageBuffer.MESSAGE_HEAD_SIZE + bodySize);
 
                         Array.Copy(MessageBuffer.head, 0, message.buffer, 0, MessageBuffer.head.Length);

@@ -179,9 +179,13 @@ namespace Network
                         continue;
                     }
                   
-                    int bodySize = BitConverter.ToInt32(MessageBuffer.head, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET);
 
                     if (MessageBuffer.IsValid(MessageBuffer.head) == false)
+                    {
+                        continue;
+                    }
+                    int bodySize = 0; 
+                    if(MessageBuffer.Decode(MessageBuffer.head, MessageBuffer.MESSAGE_BODY_SIZE_OFFSET, ref bodySize)==false)
                     {
                         continue;
                     }

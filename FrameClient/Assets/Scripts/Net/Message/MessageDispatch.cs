@@ -33,6 +33,10 @@ namespace Network
             }
 
             object data = ProtoTransfer.DeserializeProtoBuf(message.body(), type);
+            if(data ==null)
+            {
+                return;
+            }
 
             mDispatcher.Dispatch(id, data, type);
         }

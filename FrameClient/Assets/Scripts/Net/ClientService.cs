@@ -22,8 +22,9 @@ namespace Network
 
             if(mClientDic.ContainsKey(id))
             {
+                Client client = mClientDic[id];
                 mClientDic.Remove(id);
-                mClientDic[id].Disconnect();
+                client.Disconnect();
             }
 
             Client c = new Client();
@@ -51,14 +52,16 @@ namespace Network
        
         
         public void Update()
-        {        
-            foreach(var v in mClientDic)
-            {
-                if (v.Value.IsConnected)
+        {
+            var it = mClientDic.GetEnumerator();
+            while(it.MoveNext())
+            { 
+                if (it.Current.Value.IsConnected)
                 {
-                    v.Value.Update();
+                    it.Current.Value.Update();
                 }
             }
+            it.Dispose();
         }    
 
        

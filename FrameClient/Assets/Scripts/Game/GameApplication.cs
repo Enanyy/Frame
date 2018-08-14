@@ -5,17 +5,7 @@ using Network;
 /// <summary>
 /// Current game scene
 /// </summary>
-public enum Mode
-{
-    LockStep,
-    Optimistic,
-}
 
-public enum Protocol
-{
-    UDP,
-    KCP,
-}
 
 public class GameApplication :SingletonMono<GameApplication> {
 

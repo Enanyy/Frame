@@ -20,7 +20,43 @@ namespace Network
 
         //定义一个静态的包头
         public static byte[] head = new byte[MESSAGE_HEAD_SIZE];
+        public static bool IsValid(byte[] buffer)
+        {
+            if (buffer == null) return false;
 
+            if (buffer.Length < MESSAGE_HEAD_SIZE) return false;
+
+            int messageId = 0;
+            if (Decode(buffer, MESSAGE_ID_OFFSET, ref messageId) == false)
+            {
+                return false;
+            }
+
+
+            int version = 0;
+            if (Decode(buffer, MESSAGE_VERSION_OFFSET, ref version) == false)
+            {
+                return false;
+            }
+
+            if (messageId > MESSAGE_MIN_VALUE && messageId < MESSAGE_MAX_VALUE && version == MESSAGE_VERSION)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool Decode(byte[] buffer, int offset, ref int value)
+        {
+            if (buffer == null || buffer.Length < MESSAGE_HEAD_SIZE || offset + 4 > buffer.Length)
+            {
+                return false;
+            }
+
+            value = BitConverter.ToInt32(buffer, offset);
+
+            return true;
+        }
         public byte[] buffer{get{return mBuffer;}}
 
         public int size{get{return mBuffer.Length;}}
@@ -45,21 +81,7 @@ namespace Network
             Buffer.BlockCopy(BitConverter.GetBytes(extra), 0, mBuffer, MESSAGE_EXTRA_OFFSET, 4);
             Buffer.BlockCopy(data, 0, mBuffer, MESSAGE_BODY_OFFSET, data.Length);
         }
-        public static bool IsValid(byte[] buffer)
-        {
-            if (buffer == null) return false;
-
-            if (buffer.Length < MESSAGE_HEAD_SIZE) return false;
-
-            int messageId = BitConverter.ToInt32(buffer, MESSAGE_ID_OFFSET);
-            int version = version = BitConverter.ToInt32(buffer, MESSAGE_VERSION_OFFSET);
-
-            if (messageId > MESSAGE_MIN_VALUE && messageId < MESSAGE_MAX_VALUE && version == MESSAGE_VERSION)
-            {
-                return true;
-            }
-            return false;
-        }
+       
 
 
         public bool IsValid()
@@ -67,31 +89,39 @@ namespace Network
             return IsValid(mBuffer);
         }
 
-
         public int id()
         {
-            int messageid = BitConverter.ToInt32(mBuffer, MESSAGE_ID_OFFSET);
+            int messageid = -1;
+
+            Decode(mBuffer, MESSAGE_ID_OFFSET, ref messageid);
+
             return messageid;
         }
 
         public int version()
         {
-            int version = BitConverter.ToInt32(mBuffer, MESSAGE_VERSION_OFFSET);
+            int version = -1;
+            Decode(mBuffer, MESSAGE_VERSION_OFFSET, ref version);
             return version;
         }
 
         public int extra()
         {
-            int extra = BitConverter.ToInt32(mBuffer, MESSAGE_EXTRA_OFFSET);
+            int extra = -1;
+            Decode(mBuffer, MESSAGE_EXTRA_OFFSET, ref extra);
             return extra;
         }
 
         public byte[] body()
         {
-            int bodySize = BitConverter.ToInt32(mBuffer, MESSAGE_BODY_SIZE_OFFSET);
-            byte[] body = new byte[bodySize];
-            Buffer.BlockCopy(mBuffer, MESSAGE_BODY_OFFSET, body, 0, bodySize);
-            return body;
+            int bodySize = -1;
+            if (Decode(mBuffer, MESSAGE_BODY_SIZE_OFFSET, ref bodySize))
+            {
+                byte[] body = new byte[bodySize];
+                Buffer.BlockCopy(mBuffer, MESSAGE_BODY_OFFSET, body, 0, bodySize);
+                return body;
+            }
+            return null;
         }
     }
 }
