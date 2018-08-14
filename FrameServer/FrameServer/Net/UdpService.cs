@@ -91,10 +91,9 @@ namespace Network
                     {
                         Session c = mService.GetSession(ip);
 
-                        var buffer = new MessageBuffer(data);
-
-                        if (buffer.IsValid())
+                        if (MessageBuffer.IsValid(data))
                         {
+                            var buffer = new MessageBuffer(data);
                             if (c == null || c.id != buffer.extra())
                             {
                                 c = mService.GetSession(buffer.extra());
