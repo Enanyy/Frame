@@ -24,8 +24,13 @@ public static class CommandDispatch
         CommandID id =(CommandID)cmd.type;
 
         Type type = GetType(id);
+
         object data = cmd.Get(type);
 
+        if (data ==null)
+        {
+            return;
+        }
         mDispatcher.Dispatch(cmd.type, data, type);
     }
 
