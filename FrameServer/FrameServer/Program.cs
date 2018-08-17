@@ -11,13 +11,9 @@ namespace FrameServer
         static void Main(string[] args)
         {
             Program p = new Program();
-            int deltaTime = 1;
             while (true)
             {
-                Thread.Sleep(deltaTime);
-
-                p.Tick(deltaTime);
-
+                p.Update();
             }
         }
 
@@ -117,15 +113,19 @@ namespace FrameServer
             }
             return null;
         }
-
-
-        public void Tick(int deltaTime)
+        public void Update()
         {
             mService.Update();
 
-            if(mBegin)
+        }
+
+        private void Tick()
+        {
+            while(mBegin)
             {
-                mFrameTime += deltaTime;
+                Thread.Sleep(1);
+
+                mFrameTime += 1;
 
                 if(mMode == Mode.Optimistic)
                 {
@@ -354,6 +354,10 @@ namespace FrameServer
             mBegin = true; //游戏开始
 
             mFrameTime = 0;
+            
+            Thread t = new Thread(Tick);
+
+            t.Start();
 
             CreateMonster();
         }

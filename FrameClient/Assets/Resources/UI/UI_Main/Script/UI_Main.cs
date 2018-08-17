@@ -165,12 +165,13 @@ public class UI_Main : BaseWindow, IReceiverHandler
         if(mItemDic.ContainsKey(data.roleid))
         {
             Vector3 screenPosition = PlayerManager.GetSingleton().mCamera.WorldToScreenPoint(data.position);
-
         
             float ratio = WindowManager.canvas.transform.localScale.x;
 
-            screenPosition.x -= WindowManager.DESIGN_WIDTH * ratio * 0.5f;
+            screenPosition.x -= WindowManager.DESIGN_WIDTH * ratio  * 0.5f;
             screenPosition.y -= WindowManager.DESIGN_HEIGHT * ratio * 0.5f;
+            //screenPosition.x -= Screen.width  * 0.5f;
+            //screenPosition.y -= Screen.height  * 0.5f;
             screenPosition.z = 0;
 
             screenPosition.y += 60;
@@ -179,7 +180,6 @@ public class UI_Main : BaseWindow, IReceiverHandler
 
             mItemDic[data.roleid].transform.localPosition = screenPosition;
         }
-        UpdatePlayerCount();
     }
 
     void OnPlayerRemove(EventPlayerRemove data)

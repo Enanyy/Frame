@@ -404,7 +404,7 @@ public class FrameScene : GameScene, IReceiverHandler
         if (recvData.command.Count > 0 || recvData.frame % 30 == 0)
         {
             Debug.Log("Receive frame:" + recvData.frame + " command:" + recvData.command.Count);
-            Debug.Log(recvData.frametime + "," + mFrameTime + ","+(mFrameTime - recvData.frametime));
+            Debug.Log(recvData.frametime + "," + mFrameTime + "," + (mFrameTime - recvData.frametime));
         }
 
         mFrameTime = recvData.frametime;
