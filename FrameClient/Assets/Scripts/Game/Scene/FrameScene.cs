@@ -29,6 +29,7 @@ public class FrameScene : GameScene, IReceiverHandler
 
     private Thread mTickThread;
 
+    private long mPingTime = 0;
     public override void OnEnter()
     {
         base.OnEnter();
@@ -47,6 +48,14 @@ public class FrameScene : GameScene, IReceiverHandler
     public override void OnUpdate()
     {
         base.OnUpdate(); 
+
+        if(Time.frameCount % 30 ==0 && PlayerManager.GetSingleton().mReady)
+        {
+            GM_Request sendData = SharedValue<GM_Request>.sData;
+            sendData.id = PlayerManager.GetSingleton().mRoleId;
+            mPingTime = DateTime.Now.Ticks;
+            ClientService.GetSingleton().SendUdp(ClientID.Frame, MessageID.GM_PING_CS, sendData);
+        }
     }
 
     public override void OnExit()
@@ -147,7 +156,7 @@ public class FrameScene : GameScene, IReceiverHandler
         MessageDispatch.RegisterReceiver<GM_Ready>(MessageID.GM_READY_BC, OnReadyBC);
         MessageDispatch.RegisterReceiver<GM_Begin>(MessageID.GM_BEGIN_BC, OnBeginBC);
         MessageDispatch.RegisterReceiver<GM_Frame_BC>(MessageID.GM_FRAME_BC, OnFrameBC);
-
+        MessageDispatch.RegisterReceiver<GM_Return>(MessageID.GM_PING_SC, OnPingReturn);
         #endregion
 
         #region Command
@@ -173,6 +182,7 @@ public class FrameScene : GameScene, IReceiverHandler
         MessageDispatch.UnRegisterReceiver<GM_Ready>(MessageID.GM_READY_BC, OnReadyBC);
         MessageDispatch.UnRegisterReceiver<GM_Begin>(MessageID.GM_BEGIN_BC, OnBeginBC);   
         MessageDispatch.UnRegisterReceiver<GM_Frame_BC>(MessageID.GM_FRAME_BC, OnFrameBC);
+        MessageDispatch.UnRegisterReceiver<GM_Return>(MessageID.GM_PING_SC, OnPingReturn);
        
         #endregion
 
@@ -256,9 +266,14 @@ public class FrameScene : GameScene, IReceiverHandler
 
             tmpPlayerCharacter.SetReady();
         }
+
+        if(recvData.roleId == PlayerManager.GetSingleton().mRoleId)
+        {
+            PlayerManager.GetSingleton().mReady = true;
+        }
       
         EventDispatch.Dispatch(EventID.Ready_Broadcast, recvData.roleId);
-        
+       
     }
 
     private void OnBeginBC(GM_Begin recvData)
@@ -299,6 +314,22 @@ public class FrameScene : GameScene, IReceiverHandler
         }
     }
  
+    private void OnPingReturn(GM_Return recvData)
+    {
+        if(recvData == null)
+        {
+            return;
+        }
+
+        long interval = DateTime.Now.Ticks - mPingTime;
+        TimeSpan span = new TimeSpan(interval);
+        int ping = span.Milliseconds / 2;
+        Debug.Log("interval=" + interval + " ping=" + ping);
+
+        EventDispatch.Dispatch(EventID.Ping_Broadcast, ping);
+
+
+    }
     #region LockStep
 
     /// <summary>

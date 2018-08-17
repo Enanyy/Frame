@@ -15,6 +15,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
     Text mPlayer;
     Text mFrame;
     Text mProtocol;
+    Text mPing;
 
     Transform mConnect;
     Transform mReady;
@@ -34,6 +35,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         mPlayer = transform.Find("player").GetComponent<Text>();
         mFrame = transform.Find("frame").GetComponent<Text>();
         mProtocol = transform.Find("protocol").GetComponent<Text>();
+        mPing = transform.Find("ping").GetComponent<Text>();
 
 
         mIP.text = GameApplication.GetSingleton().ip;
@@ -53,6 +55,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         mPlayer.gameObject.SetActive(false);
         mFrame.gameObject.SetActive(false);
         mProtocol.gameObject.SetActive(false);
+        mPing.gameObject.SetActive(false);
         mItem.gameObject.SetActive(false);
       
 
@@ -74,6 +77,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         EventDispatch.RegisterReceiver<EventPlayerRemove>(EventID.Player_Remove, OnPlayerRemove);
         EventDispatch.RegisterReceiver<EventPlayerBloodChange>(EventID.Player_BloodChange, OnPlayerBloodChange);
         EventDispatch.RegisterReceiver<long>(EventID.Frame_Broadcast, OnFrameBC);
+        EventDispatch.RegisterReceiver<int>(EventID.Ping_Broadcast, OnPing);
     }
 
     public void UnRegisterReceiver()
@@ -86,6 +90,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
         EventDispatch.UnRegisterReceiver<EventPlayerRemove>(EventID.Player_Remove, OnPlayerRemove);
         EventDispatch.UnRegisterReceiver<EventPlayerBloodChange>(EventID.Player_BloodChange, OnPlayerBloodChange);
         EventDispatch.UnRegisterReceiver<long>(EventID.Frame_Broadcast, OnFrameBC);
+        EventDispatch.UnRegisterReceiver<int>(EventID.Ping_Broadcast, OnPing);
     }
 
     void OnConnectReturn(int result)
@@ -99,6 +104,7 @@ public class UI_Main : BaseWindow, IReceiverHandler
             mReady.gameObject.SetActive(true);
             mPlayer.gameObject.SetActive(true);
             mProtocol.gameObject.SetActive(true);
+            mPing.gameObject.SetActive(true);
             mProtocol.text ="协议:"+ GameApplication.GetSingleton().protocol.ToString();
         }
 
@@ -227,6 +233,11 @@ public class UI_Main : BaseWindow, IReceiverHandler
         {
             mFrame.text = string.Format("frame:{0}", frame);
         }
+    }
+
+    void OnPing(int ping)
+    {
+        mPing.text = string.Format("Ping:{0}ms", ping);
     }
     #endregion
 

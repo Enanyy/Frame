@@ -9,7 +9,7 @@ public enum EventID
     Begin_Broadcast,
     Frame_Broadcast,
     AddCommand,
-
+    Ping_Broadcast,
 
     Player_Create,
     Player_Move,

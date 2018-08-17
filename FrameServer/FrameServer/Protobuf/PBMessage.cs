@@ -173,6 +173,12 @@ namespace PBMessage
       [global::ProtoBuf.ProtoEnum(Name=@"GM_FRAME_BC", Value=107)]
       GM_FRAME_BC = 107,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"GM_PING_CS", Value=108)]
+      GM_PING_CS = 108,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"GM_PING_SC", Value=109)]
+      GM_PING_SC = 109,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"MaxValue", Value=1000)]
       MaxValue = 1000
     }

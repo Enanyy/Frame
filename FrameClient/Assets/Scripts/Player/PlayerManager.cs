@@ -13,6 +13,7 @@ public class PlayerManager : SingletonMono<PlayerManager>
     private List<PlayerCharacter> mPlayerCharacterList = new List<PlayerCharacter>();
 
     public int mRoleId;
+    public bool mReady = false;
 
     public PlayerCharacter mPlayerCharacterSelf;
 

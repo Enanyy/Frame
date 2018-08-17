@@ -17,6 +17,9 @@ enum MessageID
 
         GM_FRAME_CS = 106;
         GM_FRAME_BC = 107;
+		
+		GM_PING_CS = 108;
+		GM_PING_SC = 109;
 
         MaxValue = 1000;
 }

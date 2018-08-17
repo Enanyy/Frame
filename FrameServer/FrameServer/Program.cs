@@ -231,6 +231,18 @@ namespace FrameServer
                         }
                     }
                     break;
+                case MessageID.GM_PING_CS:
+                    {
+                        GM_Request recvData = ProtoTransfer.DeserializeProtoBuf<GM_Request>(msg);
+                        User u = GetUser(recvData.id);
+                        if(u !=null)
+                        {
+                            GM_Return sendData = new GM_Return();
+                            sendData.id = recvData.id;
+                            u.SendUdp(MessageID.GM_PING_SC, sendData);
+                        }
+                    }
+                    break;
 
             }
         }
