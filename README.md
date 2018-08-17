@@ -1,5 +1,5 @@
 # Frame
-帧同步demo，包含了服务器和客户端，实现了LockStep和乐观帧同步两种模式
+帧同步demo，包含了服务器和客户端，实现了LockStep和乐观帧同步两种模式，发送数据包使用原生UDP和集成了KCP协议的UDP两种方式。
 
 1.FrameClient 帧同步客户端
 
