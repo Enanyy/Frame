@@ -324,8 +324,7 @@ public class FrameScene : GameScene, IReceiverHandler
         long interval = DateTime.Now.Ticks - mPingTime;
         TimeSpan span = new TimeSpan(interval);
         int ping = span.Milliseconds / 2;
-        Debug.Log("interval=" + interval + " ping=" + ping);
-
+      
         EventDispatch.Dispatch(EventID.Ping_Broadcast, ping);
 
 
@@ -353,12 +352,7 @@ public class FrameScene : GameScene, IReceiverHandler
             while (mCommandQueue.Count > 0)
             {
                 Command frame = mCommandQueue.Dequeue();
-                GMCommand cmd = new GMCommand();
-                cmd.id = 0;
-                cmd.frame = frame.frame;
-                cmd.type = frame.type;
-                cmd.data = frame.data;
-                cmd.frametime = frame.time;
+                GMCommand cmd = ProtoTransfer.Get(frame);
 
                 sendData.command.Add(cmd);
             }

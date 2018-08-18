@@ -117,25 +117,23 @@ namespace FrameServer
         {
             mService.Update();
 
-        }
-
-        private void Tick()
-        {
-            while(mBegin)
+            if (mBegin)
             {
                 Thread.Sleep(1);
 
                 mFrameTime += 1;
 
-                if(mMode == Mode.Optimistic)
+                if (mMode == Mode.Optimistic)
                 {
-                    if(mFrameTime % FRAME_INTERVAL == 0)
+                    if (mFrameTime % FRAME_INTERVAL == 0)
                     {
                         SendFrame();
                     }
                 }
             }
         }
+
+     
 
 
         private void OnStart()
@@ -367,10 +365,6 @@ namespace FrameServer
 
             mFrameTime = 0;
             
-            Thread t = new Thread(Tick);
-
-            t.Start();
-
             CreateMonster();
         }
         void CreateMonster()
